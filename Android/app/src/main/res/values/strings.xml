@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Shop House</string>
+    <string name="find_something">Find something...</string>
+    <string name="cart">Cart</string>
+    <string name="menu">Menu</string>
+    <string name="banner">Banner</string>
+    <string name="flash_sale">Flash Sale</string>
+    <string name="category1">Category 1</string>
+    <string name="flash_sale_item1">Flash Sale Item 1</string>
+    <string name="newest_product">Newest product</string>
+    <string name="profile">Profile</string>
+    <string name="search">Search</string>
+    <string name="sale">Sale</string>
+    <string name="jean">Jean</string>
+    <string name="suit">Suit</string>
+    <string name="shoe">Shoe</string>
+    <string name="vest">Vest</string>
+    <string name="t_shirt">T-shirt</string>
+    <string name="watch">Watch</string>
+    <string name="item">Item</string>
+    <string name="hat">Hat</string>
+    <string name="belt">Belt</string>
+    <string name="sandal">Sandal</string>
+    <string name="unisex">Unisex</string>
+    <string name="product_description">Product Description</string>
+    <string name="product_price">Product Price</string>
+    <string name="product_name">Product Name</string>
+    <string name="add_to_cart">Thêm vào giỏ</string>
+    <string name="best_seller">Best Seller</string>
+    <string name="rate">Rate:</string>
+    <string name="purchase_count">Purchase count:</string>
+    <string name="detail">Xem chi tiết</string>
+    <string name="total">Thành tiền:</string>
+    <string name="quantity">Số lượng</string>
+    <string name="your_cart_is_empty">Bạn vẫn chưa mua gì cả!</string>
+    <string name="product_quantity">Product Quantity</string>
+    <string name="Remove">Xóa</string>
+    <string name="checkout">Thanh toán</string>
+    <string name="dot">-----------------------</string>
+    <string name="total_price_0_00">Total Price: $0.00</string>
+    <string name="total_quantity_0">Total Quantity: 0</string>
+    <string name="reviews">Đánh giá</string>
+    <string name="write_a_review">Đánh giá của bạn</string>
+    <string name="submit_review">Gửi</string>
+    <array name="size_options">
+        <item>Size S</item>
+        <item>Size M</item>
+        <item>Size L</item>
+        <item>Size XL</item>
+    </array>
+    <!-- Add other strings as needed -->
+</resources>

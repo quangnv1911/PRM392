@@ -1,0 +1,74 @@
+<!-- item_cart.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/cartProductImage"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_launcher_background" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:paddingStart="16dp">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/cartProductName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/product_name"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/cartProductPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/product_price"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/cartProductSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Size: "
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/cartProductQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quantity: "
+                android:textSize="14sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginStart="30dp"
+            android:orientation="vertical"
+            android:layout_gravity="end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/removeFromCartButton"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                android:text="@string/Remove" />
+
+            <Button
+                android:id="@+id/detail"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                android:text="@string/detail" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

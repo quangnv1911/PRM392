@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "814876953767",
+    "firebase_url": "https://quan-9a158-default-rtdb.firebaseio.com",
+    "project_id": "quan-9a158",
+    "storage_bucket": "quan-9a158.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:814876953767:android:542c663dba6f09f0981f82",
+        "android_client_info": {
+          "package_name": "com.example.pmg302_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRIMkoI7OTapsa4WAJuFCNMmMrlkjY2gw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

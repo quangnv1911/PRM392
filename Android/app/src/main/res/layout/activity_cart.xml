@@ -1,0 +1,67 @@
+<!-- activity_cart.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/emptyCartMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/facebook_blue"
+        android:text="@string/your_cart_is_empty"
+        android:visibility="gone"
+        android:textSize="18sp"
+        android:layout_gravity="center" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewCart"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/totalQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/facebook_blue"
+        android:text="@string/total_quantity_0"
+        android:textSize="16sp"
+        android:layout_gravity="end"
+        android:paddingTop="8dp" />
+
+    <TextView
+        android:id="@+id/totalPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/facebook_blue"
+        android:text="@string/total_price_0_00"
+        android:textSize="16sp"
+        android:layout_gravity="end"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:text="@string/dot"
+        android:layout_gravity="end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/checkoutButton"
+        android:layout_gravity="end"
+        android:text="@string/checkout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
