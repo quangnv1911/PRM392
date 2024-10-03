@@ -48,7 +48,13 @@
                 android:id="@+id/cartProductQuantity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quantity: "
+                android:text="Số lượng: "
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/cartProductColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Màu sắc: "
                 android:textSize="14sp" />
         </LinearLayout>
         <LinearLayout

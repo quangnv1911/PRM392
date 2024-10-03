@@ -21,6 +21,7 @@ import android.widget.ViewFlipper;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.adapter.ProductAdapter;
 import com.example.pmg302_project.model.Product;
@@ -45,6 +46,7 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
     private LinearLayout smallImagesContainer;
     private List<Product> cartList = new ArrayList<>();
     private ProductAdapter.OnAddToCartClickListener onAddToCartClickListener;
+    String ip = COMMONSTRING.ip;
 
     @SuppressLint("DefaultLocale")
     @Override
@@ -101,6 +103,7 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
         TextView productName = dialogView.findViewById(R.id.productName);
         EditText quantityEditText = dialogView.findViewById(R.id.quantityEditText);
         Spinner sizeSpinner = dialogView.findViewById(R.id.sizeSpinner);
+        Spinner colorSpinner = dialogView.findViewById(R.id.colorSpinner);
         TextView totalPriceTextView = dialogView.findViewById(R.id.totalPriceTextView);
         Button addToCartButton = dialogView.findViewById(R.id.addToCartButton);
 
@@ -110,10 +113,12 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
         // Add TextWatcher to quantityEditText
         quantityEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -129,10 +134,17 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
 
         AlertDialog dialog = builder.create();
         addToCartButton.setOnClickListener(v -> {
+            String quantityStr = quantityEditText.getText().toString();
+            if (quantityStr.isEmpty() || !quantityStr.matches("\\d+")) {
+                quantityEditText.setError("Please enter a valid quantity");
+                return;
+            }
+
+            int quantity = Integer.parseInt(quantityStr);
+            String size = sizeSpinner.getSelectedItem().toString();
+            String color = colorSpinner.getSelectedItem().toString();
             if (onAddToCartClickListener != null) {
-                int quantity = Integer.parseInt(quantityEditText.getText().toString());
-                String size = sizeSpinner.getSelectedItem().toString();
-                onAddToCartClickListener.onAddToCartClick(product, quantity, size);
+                onAddToCartClickListener.onAddToCartClick(product, quantity, size, color);
             }
             dialog.dismiss();
         });
@@ -141,7 +153,7 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
     }
 
     private void fetchProductImages(int productId) {
-        String url = "http://172.20.109.44:8081/api/product-detail?productId=" + productId;
+        String url = "http://" + ip + ":8081/api/product-detail?productId=" + productId;
         Request request = new Request.Builder().url(url).build();
         client.newCall(request).enqueue(new okhttp3.Callback() {
             @Override
@@ -154,7 +166,8 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
                 if (response.isSuccessful()) {
                     String jsonResponse = response.body().string();
                     Gson gson = new Gson();
-                    Type listType = new TypeToken<List<ProductImage>>() {}.getType();
+                    Type listType = new TypeToken<List<ProductImage>>() {
+                    }.getType();
                     List<ProductImage> images = gson.fromJson(jsonResponse, listType);
 
                     runOnUiThread(() -> displayProductImages(images));
@@ -218,7 +231,7 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
     }
 
     @Override
-    public void onAddToCartClick(Product product, int quantity, String size) {
+    public void onAddToCartClick(Product product, int quantity, String size, String color) {
         cartList = CartPreferences.loadCart(this);
         boolean productExists = false;
 
@@ -236,6 +249,7 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
         if (!productExists) {
             product.setQuantity(quantity);
             product.setSize(size);
+            product.setColor(color);
             cartList.add(product);
         }
 

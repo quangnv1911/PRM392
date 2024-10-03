@@ -23,8 +23,8 @@
     <string name="sandal">Sandal</string>
     <string name="unisex">Unisex</string>
     <string name="product_description">Product Description</string>
-    <string name="product_price">Product Price</string>
-    <string name="product_name">Product Name</string>
+    <string name="product_price">Giá</string>
+    <string name="product_name">Tên sản phẩm</string>
     <string name="add_to_cart">Thêm vào giỏ</string>
     <string name="best_seller">Best Seller</string>
     <string name="rate">Rate:</string>
@@ -47,6 +47,12 @@
         <item>Size M</item>
         <item>Size L</item>
         <item>Size XL</item>
+    </array>
+    <array name="color_options">
+        <item>Black</item>
+        <item>White</item>
+        <item>Yellow</item>
+        <item>Red</item>
     </array>
     <!-- Add other strings as needed -->
 </resources>

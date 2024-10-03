@@ -31,6 +31,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private OkHttpClient client = new OkHttpClient();
     private EditText editTextEmail, editTextPassword;
     Button landingPage;
+    String ip = COMMONSTRING.ip;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                     String json = "{\"username\":\"" + username + "\", \"password\":\"password\", \"method\": \"google\", \"fullName\": \"" + fullName + "\"}";
                     RequestBody body = RequestBody.create(json, JSON);
                     Request request = new Request.Builder()
-                            .url("http://172.20.109.44:8081/api/login")
+                            .url("http://"+ip+":8081/api/login")
                             .post(body)
                             .build();
                     Log.d(TAG, "Sending request to: " + request.url());
@@ -205,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
                     String json = "{\"username\":\"" + userName + "\", \"password\":\"" + password + "\", \"method\": \"other\"}";
                     RequestBody body = RequestBody.create(json, JSON);
                     Request request = new Request.Builder()
-                            .url("http://172.20.109.44:8081/api/login")
+                            .url("http://"+ip+":8081/api/login")
                             .post(body)
                             .build();
                     Log.d(TAG, "Sending request to: " + request);

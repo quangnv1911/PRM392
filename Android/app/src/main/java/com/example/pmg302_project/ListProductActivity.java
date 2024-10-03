@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.adapter.ProductAdapter;
 import com.example.pmg302_project.model.Product;
@@ -38,7 +39,7 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
     private List<Product> productList = new ArrayList<>();
     private List<Product> cartList = new ArrayList<>();
     private RecyclerView recyclerView;
-
+    String ip = COMMONSTRING.ip;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +65,7 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
     }
 
     private void fetchProduct(String productType) {
-        String url = "http://172.20.109.44:8081/api/product?type=" + productType;
+        String url = "http://"+ip+":8081/api/product?type=" + productType;
 
         Request request = new Request.Builder()
                 .url(url)
@@ -115,7 +116,7 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
     }
 
     @Override
-    public void onAddToCartClick(Product product, int quantity, String size) {
+    public void onAddToCartClick(Product product, int quantity, String size, String color) {
         cartList = CartPreferences.loadCart(this);
         boolean productExists = false;
 
@@ -133,6 +134,7 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
         if (!productExists) {
             product.setQuantity(quantity);
             product.setSize(size);
+            product.setColor(color);
             cartList.add(product);
         }
 

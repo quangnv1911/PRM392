@@ -28,6 +28,13 @@
         android:entries="@array/size_options"
         android:layout_marginTop="16dp" />
 
+    <Spinner
+        android:id="@+id/colorSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/color_options"
+        android:layout_marginTop="16dp" />
+
     <EditText
         android:id="@+id/quantityEditText"
         android:layout_width="match_parent"

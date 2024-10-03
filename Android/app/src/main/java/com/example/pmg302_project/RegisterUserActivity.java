@@ -10,6 +10,8 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.pmg302_project.Utils.COMMONSTRING;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,6 +24,7 @@ import okhttp3.Response;
 public class RegisterUserActivity extends AppCompatActivity {
     private EditText editTextFullName;
     private OkHttpClient client = new OkHttpClient();
+    String ip = COMMONSTRING.ip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +54,7 @@ public class RegisterUserActivity extends AppCompatActivity {
                     String json = "{\"username\":\"" + userName + "\", \"fullName\":\"" + fullName + "\"}";
                     RequestBody body = RequestBody.create(json, JSON);
                     Request request = new Request.Builder()
-                            .url("http://172.20.109.44:8081/api/register")
+                            .url("http://"+ip+":8081/api/register")
                             .post(body)
                             .addHeader("Authorization", "Bearer " + token) // Thêm header Authorization
                             .build();

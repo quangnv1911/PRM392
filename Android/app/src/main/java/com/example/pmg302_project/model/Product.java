@@ -11,6 +11,7 @@ public class Product {
     private double rate;
     private int quantity; // Add this field
     private String size;
+    private String color; // Add this field
     // Constructor
     public Product(int id, String name, String description, double price, String imageLink, String type, double rate, int purchaseCount) {
         this.id = id;
@@ -35,6 +36,8 @@ public class Product {
     public String getType() { return type; }
     public int getQuantity() { return quantity; }
     public String getSize() { return size; }
+    public String getColor() { return color; }
     public void setQuantity(int quantity) { this.quantity = quantity; } // Add this setter
     public void setSize(String size) { this.size = size; }
+    public void setColor(String color) { this.color = color; } // Add this setter
 }

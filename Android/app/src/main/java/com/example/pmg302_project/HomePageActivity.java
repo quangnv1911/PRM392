@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.adapter.ProductAdapter;
 import com.example.pmg302_project.model.Product;
@@ -43,6 +44,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.google.android.material.navigation.NavigationView;
 
 public class HomePageActivity extends AppCompatActivity implements ProductAdapter.OnAddToCartClickListener {
@@ -55,6 +57,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     private List<Product> cartList = new ArrayList<>();
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    String ip = COMMONSTRING.ip;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -110,7 +113,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     }
 
     private void fetchTopProducts() {
-        String url = "http://172.20.109.44:8081/api/top";
+        String url = "http://" + ip + ":8081/api/top";
 
         Request request = new Request.Builder()
                 .url(url)
@@ -161,7 +164,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         });
     }
 
-    private void setupButtonListeners () {
+    private void setupButtonListeners() {
         Button saleButton = findViewById(R.id.sale);
         saleButton.setOnClickListener(view -> openListProductActivity("Sale"));
         Button jeanButton = findViewById(R.id.jean);
@@ -218,7 +221,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     }
 
     private void fetchImageUrls() {
-        String url = "http://172.20.109.44:8081/api/flipper";
+        String url = "http://" + ip + ":8081/api/flipper";
 
         Request request = new Request.Builder()
                 .url(url)
@@ -268,13 +271,13 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     }
 
     @Override
-    public void onAddToCartClick(Product product, int quantity, String size) {
+    public void onAddToCartClick(Product product, int quantity, String size, String color) {
         cartList = CartPreferences.loadCart(this);
         boolean productExists = false;
 
         // Check if product already exists in cart
         for (Product cartProduct : cartList) {
-            if (cartProduct.getId() == product.getId() && cartProduct.getSize().equals(size)) {
+            if (cartProduct.getId() == product.getId() && size != null && size.equals(cartProduct.getSize()) && color != null && color.equals(cartProduct.getColor())) {
                 // Product exists, increase quantity
                 cartProduct.setQuantity(cartProduct.getQuantity() + quantity);
                 productExists = true;
@@ -286,6 +289,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         if (!productExists) {
             product.setQuantity(quantity);
             product.setSize(size);
+            product.setColor(color);
             cartList.add(product);
         }
 

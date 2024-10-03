@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.pmg302_project.Utils.COMMONSTRING;
+
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -20,6 +22,7 @@ import okhttp3.Response;
 public class ForgotPasswordActivity extends AppCompatActivity {
     private EditText editTextEmail;
     private OkHttpClient client = new OkHttpClient();
+    String ip = COMMONSTRING.ip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +52,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 String json = "{\"email\":\"" + email + "\"}";
                 RequestBody body = RequestBody.create(json, JSON);
                 Request request = new Request.Builder()
-                        .url("http://172.20.109.44:8081/api/reset-password")
+                        .url("http://"+ip+":8081/api/reset-password")
                         .post(body)
                         .build();
                 Log.d(TAG, "Sending request to: " + request.url());
