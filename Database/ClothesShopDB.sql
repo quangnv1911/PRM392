@@ -4,6 +4,19 @@ USE master;
 CREATE DATABASE ClothesShop;
 USE ClothesShop;
 
+create table users
+(
+    id         bigint auto_increment
+        primary key,
+    password   varchar(255) null,
+    username   varchar(255) not null,
+    full_name  varchar(255) null,
+    image_link varchar(255) null,
+    constraint UKr43af9ap4edm43mmtq01oddj6
+        unique (username)
+);
+
+
 -- Table: Account
 CREATE TABLE Account (
     accountId INT NOT NULL,
@@ -114,11 +127,23 @@ CREATE TABLE Product (
     productId INT NOT NULL,
     productName NVARCHAR(50) NOT NULL,
     image NVARCHAR(254) NOT NULL,
-    price INT NOT NULL,
+    price double NOT NULL,
     stockQuantity INT NOT NULL,
     categoryId INT NOT NULL,
+    image_link     varchar(255) null,
+    type           varchar(255) null,
+    purchase_count int          not null,
+    rate           double       not null,
     createdBy INT NOT NULL,
     CONSTRAINT Product_pk PRIMARY KEY (productId)
+);
+
+create table product_detail
+(
+    id            bigint auto_increment
+        primary key,
+    image_product varchar(255) null,
+    product_id    bigint       null
 );
 
 -- Table: Role
@@ -126,6 +151,13 @@ CREATE TABLE Role (
     roleId INT NOT NULL,
     roleName VARCHAR(50) NOT NULL,
     CONSTRAINT Role_pk PRIMARY KEY (roleId)
+);
+
+create table flipper
+(
+    id         bigint auto_increment
+        primary key,
+    image_link varchar(255) null
 );
 
 -- Foreign keys

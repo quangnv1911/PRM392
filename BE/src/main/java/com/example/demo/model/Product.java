@@ -13,19 +13,28 @@ import lombok.*;
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer productId;
 
-    private String name;
+    @Column(nullable = false)
+    private String productName;
 
-    private String description;
+    @Column(nullable = false)
+    private String image;
 
-    private Double price;
+    @Column(nullable = false)
+    private double price;
+
+    @Column(nullable = false)
+    private Integer stockQuantity;
+
+    @ManyToOne
+    @JoinColumn(name = "categoryId", nullable = false)
+    private Categorie category;
 
     private String imageLink;
-
     private String type;
-
-    private int purchaseCount;
-
+    private Integer purchaseCount;
     private double rate;
+
+    private Integer createdBy;
 }
