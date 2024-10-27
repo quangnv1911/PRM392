@@ -1,7 +1,10 @@
 // CartActivity.java
 package com.example.pmg302_project;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 
@@ -45,6 +48,22 @@ public class CartActivity extends AppCompatActivity {
         }
 
         updateCartSummary();
+        Button checkoutButton = findViewById(R.id.checkoutButton);
+        checkoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String username=InMemoryStorage.get("username");
+                Intent intent;
+                if(username!=null){
+                     intent = new Intent(CartActivity.this, PaymentActivity.class);
+                }else{
+                     intent = new Intent(CartActivity.this, MainActivity.class);
+                }
+
+                startActivity(intent);
+            }
+        });
+
     }
 
     public void updateCartSummary() {

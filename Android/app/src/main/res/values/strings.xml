@@ -54,5 +54,14 @@
         <item>Yellow</item>
         <item>Red</item>
     </array>
+
+    <string name="payment">Đặt hàng</string>
+    <string name="delivery_infomation">Thông tin nhận hàng</string>
+    <string name="buyer_name">Tên của bạn</string>
+    <string name="phone_number">Số điện thoại</string>
+    <string name="address">Địa chỉ</string>
+    <string name="update_information">Chỉnh sửa thông tin</string>
+    <string name="input_coupon">Nhập mã ưu đãi</string>
+    <string name="check_coupon">Kiểm tra mã</string>
     <!-- Add other strings as needed -->
 </resources>

@@ -39,4 +39,8 @@ public class Account {
     @ManyToOne
     @JoinColumn(name = "roleId", nullable = false)
     private Role role;
+
+    @OneToOne
+    @JoinColumn(name = "userId", nullable = false)
+    private User user;
 }

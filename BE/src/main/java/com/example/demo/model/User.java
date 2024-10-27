@@ -27,4 +27,15 @@ public class User {
 
     @Column(nullable = true)
     private String fullName;
+
+    public Long getId(){
+        return this.id;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+    public String getFullName() {
+        return this.fullName;
+    }
 }

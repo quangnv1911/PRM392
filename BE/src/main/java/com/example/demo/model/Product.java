@@ -35,6 +35,6 @@ public class Product {
     private String type;
     private Integer purchaseCount;
     private double rate;
-
+    private String description;
     private Integer createdBy;
 }

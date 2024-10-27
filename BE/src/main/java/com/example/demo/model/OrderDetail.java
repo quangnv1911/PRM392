@@ -34,4 +34,7 @@ public class OrderDetail {
     @ManyToOne
     @JoinColumn(nullable = false)
     private Coupon coupon;  // Mối quan hệ với bảng Coupon
+
+    private String size;
+    private String color;
 }

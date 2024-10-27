@@ -21,7 +21,10 @@ public class Orders {
     private LocalDate orderDate;
 
     @Column(nullable = false)
-    private Integer totalAmount;
+    private Integer totalQuantity;
+
+    @Column(nullable = false)
+    private Float totalPrice;
 
     @Column(nullable = false)
     private String status;
