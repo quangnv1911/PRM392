@@ -91,8 +91,8 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
                                 try {
                                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                                     Product product = new Product(
-                                            jsonObject.getInt("id"),
-                                            jsonObject.getString("name"),
+                                            jsonObject.getInt("productId"),
+                                            jsonObject.getString("productName"),
                                             jsonObject.getString("description"),
                                             jsonObject.getDouble("price"),
                                             jsonObject.getString("imageLink"),

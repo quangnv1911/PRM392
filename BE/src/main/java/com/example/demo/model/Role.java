@@ -18,7 +18,4 @@ public class Role {
 
     @Column(nullable = false)
     private String roleName;
-
-    @OneToMany(mappedBy = "role")
-    private List<Account> accounts;
 }
