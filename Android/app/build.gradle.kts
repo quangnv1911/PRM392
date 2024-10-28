@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.navigation.runtime)
     implementation(libs.navigation.ui)
+    implementation(libs.navigation.fragment)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
