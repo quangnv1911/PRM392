@@ -46,8 +46,6 @@ public class Coupon {
     @Column(nullable = false)
     private Integer createdBy;//tạo bởi
 
-    // One-to-one với CouponType
-    @OneToOne
-    @JoinColumn(name = "discountId", nullable = false)
-    private CouponType couponType;
+    @Column(nullable = false)
+    private Integer couponType;//0-phần trăm, 1-sô
 }
