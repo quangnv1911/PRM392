@@ -19,7 +19,9 @@ import com.example.pmg302_project.model.Account;
 import com.example.pmg302_project.model.Product;
 import com.squareup.picasso.Picasso;
 
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 
 public class PaymentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -44,10 +46,13 @@ public class PaymentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         Product product = productList.get(position);
             PaymentAdapter.ProductViewHolder productHolder = (PaymentAdapter.ProductViewHolder) holder;
             productHolder.productName.setText(product.getName());
-            productHolder.productPrice.setText("Price: "+product.getPrice() + "$");
-            productHolder.productSize.setText("Size: " + product.getSize());
-            productHolder.productQuantity.setText("Quantity: " + product.getQuantity());
-            productHolder.productColor.setText("Color: " + product.getColor()); // Set color
+
+            NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+            String formattedPrice = formatter.format(product.getPrice());
+            productHolder.productPrice.setText("Giá: "+formattedPrice + " VNĐ");
+            productHolder.productSize.setText("Kích cỡ: " + product.getSize());
+            productHolder.productQuantity.setText("Số lượng: " + product.getQuantity());
+            productHolder.productColor.setText("Màu: " + product.getColor()); // Set color
             Picasso.get().load(product.getImageLink()).into(productHolder.productImage);
     }
 
@@ -56,64 +61,7 @@ public class PaymentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return productList.size();
     }
 
-    public interface OnAddToCartClickListener {
-        void onAddToCartClick(Product product, int quantity, String size, String color);
-    }
 
-    private void showEditInforDialog(Account account) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_infomation, null);
-        builder.setView(dialogView);
-
-        TextView userName = dialogView.findViewById(R.id.editName);
-        TextView userPhone = dialogView.findViewById(R.id.editPhone);
-        TextView userAddress = dialogView.findViewById(R.id.editAddress);
-
-        userName.setText(account.getFullname());
-        userPhone.setText(account.getPhone());
-        userAddress.setText(account.getAddress());
-
-        // Add TextWatcher to quantityEditText
-//        quantityEditText.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                try {
-//                    int quantity = Integer.parseInt(s.toString());
-//                    double totalPrice = quantity * product.getPrice();
-//                    totalPriceTextView.setText(String.format("Total: $%.2f", totalPrice));
-//                } catch (NumberFormatException e) {
-//                    totalPriceTextView.setText("Total: $0.00");
-//                }
-//            }
-//        });
-//
-//        AlertDialog dialog = builder.create();
-//        addToCartButton.setOnClickListener(v -> {
-//            String quantityStr = quantityEditText.getText().toString();
-//            if (quantityStr.isEmpty() || !quantityStr.matches("\\d+")) {
-//                quantityEditText.setError("Please enter a valid quantity");
-//                return;
-//            }
-//
-//            int quantity = Integer.parseInt(quantityStr);
-//            String size = sizeSpinner.getSelectedItem().toString();
-//            String color = colorSpinner.getSelectedItem().toString();
-//            if (onAddToCartClickListener != null) {
-//                onAddToCartClickListener.onAddToCartClick(product, quantity, size, color);
-//            }
-//            dialog.dismiss();
-//        });
-//
-//        dialog.show();
-    }
 
     static class ProductViewHolder extends RecyclerView.ViewHolder {
         ImageView productImage;

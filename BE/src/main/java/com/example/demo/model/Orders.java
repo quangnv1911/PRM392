@@ -27,7 +27,7 @@ public class Orders {
     private Float totalPrice;
 
     @Column(nullable = false)
-    private String status;
+    private Integer status;
 
     @ManyToOne
     @JoinColumn(name = "accountId", nullable = false)

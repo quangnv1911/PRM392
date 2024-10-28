@@ -37,8 +37,8 @@
     <string name="Remove">Xóa</string>
     <string name="checkout">Thanh toán</string>
     <string name="dot">-----------------------</string>
-    <string name="total_price_0_00">Total Price: $0.00</string>
-    <string name="total_quantity_0">Total Quantity: 0</string>
+    <string name="total_price_0_00">Tổng giá tiền: 0 VNĐ</string>
+    <string name="total_quantity_0">Tổng số lượng: 0</string>
     <string name="reviews">Đánh giá</string>
     <string name="write_a_review">Đánh giá của bạn</string>
     <string name="submit_review">Gửi</string>
@@ -49,10 +49,10 @@
         <item>Size XL</item>
     </array>
     <array name="color_options">
-        <item>Black</item>
-        <item>White</item>
-        <item>Yellow</item>
-        <item>Red</item>
+        <item>Đen</item>
+        <item>Trắng</item>
+        <item>Vàng</item>
+        <item>Đỏ</item>
     </array>
 
     <string name="payment">Đặt hàng</string>
@@ -63,5 +63,17 @@
     <string name="update_information">Chỉnh sửa thông tin</string>
     <string name="input_coupon">Nhập mã ưu đãi</string>
     <string name="check_coupon">Kiểm tra mã</string>
+    <string-array name="statusOrder">
+        <item>Chờ xử lý</item>
+        <item>Đang xử lý</item>
+        <item>Đã xác nhận</item>
+        <item>Đang vận chuyển</item>
+        <item>Đã giao hàng</item>
+        <item>Đã hủy</item>
+    </string-array>
+    <string-array name="couponType">
+        <item>Phần trăm</item>
+        <item>Số</item>
+    </string-array>
     <!-- Add other strings as needed -->
 </resources>
