@@ -201,7 +201,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == 2131296314) {
+        if (item.getItemId() == R.id.action_cart) {
             Intent intent = new Intent(this, CartActivity.class);
             startActivity(intent);
             return true;
