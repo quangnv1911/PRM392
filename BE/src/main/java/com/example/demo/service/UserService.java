@@ -57,6 +57,9 @@ public class UserService {
             }
             return user;
         } else {
+            if (password.isEmpty()) {
+                return Optional.empty();
+            }
             return userRepository.findByUsernameAndPassword(username, password);
         }
     }
