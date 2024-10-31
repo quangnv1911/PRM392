@@ -177,17 +177,23 @@ public class MainActivity extends AppCompatActivity {
                                         JSONObject jsonObject = new JSONObject(responseBody);
                                         String token = jsonObject.getString("token");
                                         String refreshToken = jsonObject.getString("refreshToken");
+                                        String role = jsonObject.getString("role");
                                         String serverFullName = jsonObject.optString("fullName", "");
                                         InMemoryStorage.save("token", token);
                                         InMemoryStorage.save("refreshToken", refreshToken);
                                         InMemoryStorage.save("username", username);
-
+                                        InMemoryStorage.save("role", role);
                                         Intent intent;
                                         if (serverFullName == null || serverFullName.isEmpty()) {
                                             intent = new Intent(MainActivity.this, RegisterUserActivity.class);
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
-                                            intent = new Intent(MainActivity.this, HomePageActivity.class);
+                                            if (role.equals("Admin")) {
+                                                intent = new Intent(MainActivity.this, ManageProductActivity.class);
+                                            } else {
+                                                intent = new Intent(MainActivity.this, HomePageActivity.class);
+                                            }
+
                                         }
                                         startActivity(intent);
                                         finish(); // Kết thúc MainActivity nếu không cần quay lại
@@ -246,17 +252,23 @@ public class MainActivity extends AppCompatActivity {
                                         String token = jsonObject.getString("token");
                                         String refreshToken = jsonObject.getString("refreshToken");
                                         String username = jsonObject.getString("username");
+                                        String role = jsonObject.getString("role");
                                         String serverFullName = jsonObject.optString("fullName", "");
                                         InMemoryStorage.save("token", token);
                                         InMemoryStorage.save("refreshToken", refreshToken);
                                         InMemoryStorage.save("username", username);
+                                        InMemoryStorage.save("role", role);
 
                                         Intent intent;
                                         if (serverFullName.equals("null") || serverFullName.isEmpty()) {
                                             intent = new Intent(MainActivity.this, RegisterUserActivity.class);
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
-                                            intent = new Intent(MainActivity.this, HomePageActivity.class);
+                                            if (role.equals("Admin")) {
+                                                intent = new Intent(MainActivity.this, ManageProductActivity.class);
+                                            } else {
+                                                intent = new Intent(MainActivity.this, HomePageActivity.class);
+                                            }
                                         }
                                         startActivity(intent);
                                         finish();

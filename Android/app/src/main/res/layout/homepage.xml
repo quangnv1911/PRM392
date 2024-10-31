@@ -190,7 +190,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_margin="16dp"
-            android:src="@drawable/common_full_open_on_phone"
+            android:src="@android:drawable/sym_action_chat"
             app:backgroundTint="@color/facebook_blue"
             app:fabSize="normal" />
     </RelativeLayout>
