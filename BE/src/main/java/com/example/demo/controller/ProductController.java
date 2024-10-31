@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
+import com.example.demo.Dtos.Request.ProductCreateDto;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductDetail;
+import com.example.demo.repo.CategoriesRepository;
 import com.example.demo.repo.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +19,8 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private CategoriesRepository categoriesRepository;
     @GetMapping("/product")
     public List<Product> getProductsByType(@RequestParam(required = false) String type) {
 
@@ -36,9 +41,20 @@ public class ProductController {
         return productRepository.findTop5ByOrderByPurchaseCountDesc();
     }
 
-    @GetMapping("")
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    @PostMapping("product")
+    public ResponseEntity<ProductCreateDto> createNewProduct(@RequestBody ProductCreateDto productCreateDto) {
+        Product product = new Product();
+        product.setProductName(productCreateDto.getProductName());
+        product.setPrice(productCreateDto.getPrice());
+        product.setStockQuantity(productCreateDto.getStockQuantity());
+        product.setImage(productCreateDto.getImage());
+        product.setCategory(categoriesRepository.findByCategoryId(productCreateDto.getCategoryId()));
+        product.setDescription(productCreateDto.getDescription());
+        product.setPurchaseCount(0);
+        // Lưu sản phẩm vào cơ sở dữ liệu
+        productRepository.save(product);
+
+        return new ResponseEntity<>(productCreateDto, HttpStatus.CREATED);
     }
 
     @PutMapping("")

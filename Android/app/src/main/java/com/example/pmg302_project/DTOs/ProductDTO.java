@@ -15,6 +15,15 @@ public class ProductDTO {
     private Double rate;
     private String description;
     private Long createdBy;
+    private Integer categoryId;
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
 
     // Constructors, getters, and setters
     public ProductDTO() {
