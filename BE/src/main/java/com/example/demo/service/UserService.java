@@ -1,10 +1,17 @@
 package com.example.demo.service;
 
+import com.example.demo.model.Account;
+import com.example.demo.model.Role;
+import com.example.demo.repo.AccountRepository;
+import com.example.demo.repo.RoleRepository;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.demo.repo.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.Optional;
 
 import com.example.demo.model.User;
@@ -15,8 +22,15 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
     private EmailService emailService;
 
+    @Transactional
     public Optional<User> login(String username, String password, String loginMethod, String fullName) {
         if (loginMethod.equals("google")) {
             Optional<User> user = userRepository.findByUsername(username);
@@ -26,6 +40,19 @@ public class UserService {
                 newUser.setPassword("");
                 newUser.setFullName(fullName);
                 userRepository.save(newUser);
+                // Create a new Account for the registered user
+                Account account = new Account();
+                account.setUser(newUser);
+                account.setFullname(fullName);
+                account.setPhone("");
+                account.setAddress("");
+                account.setImage("");
+                // After
+                Role role = roleRepository.findById(2L).orElseThrow(() -> new RuntimeException("Role not found"));
+                account.setRole(role);
+                account.setCreatedOn(LocalDate.now());
+                // Set other account details as needed
+                accountRepository.save(account);
                 return Optional.of(newUser);
             }
             return user;
