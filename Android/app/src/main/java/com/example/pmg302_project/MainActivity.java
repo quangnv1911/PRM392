@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
                                         InMemoryStorage.save("username", username);
 
                                         Intent intent;
-                                        if (serverFullName.isEmpty()) {
+                                        if (serverFullName.equals("null") || serverFullName.isEmpty()) {
                                             intent = new Intent(MainActivity.this, RegisterUserActivity.class);
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
