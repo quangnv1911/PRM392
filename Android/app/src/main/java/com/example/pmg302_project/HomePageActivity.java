@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -308,6 +309,10 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             drawerLayout.openDrawer(GravityCompat.START);
             return true;
         }
+        if (item.getItemId() == R.id.action_search) {
+            // No need to handle search item click here as it is handled in onCreateOptionsMenu
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -315,7 +320,54 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.toolbar_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) searchItem.getActionView();
+
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchProduct(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
         return true;
+    }
+
+    private void searchProduct(String query) {
+        String url = "http://" + ip + ":8081/api/searchProduct?search=" + query;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(HomePageActivity.this, "Search failed", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    runOnUiThread(() -> {
+                        Intent intent = new Intent(HomePageActivity.this, SearchResultsActivity.class);
+                        intent.putExtra("searchResults", responseData);
+                        startActivity(intent);
+                    });
+                } else {
+                    runOnUiThread(() -> Toast.makeText(HomePageActivity.this, "Search failed", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
     }
 
     private void fetchImageUrls() {
