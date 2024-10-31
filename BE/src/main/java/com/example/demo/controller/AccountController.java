@@ -60,4 +60,29 @@ public class AccountController {
         }
     }
 
+    @PostMapping("/account/update-profile")
+    public ResponseEntity<Map<String, String>> updateAccount(@RequestBody Map<String, String> accountDetails) {
+        String username = accountDetails.get("username");
+        String fullName = accountDetails.get("fullname");
+        String phone = accountDetails.get("phone");
+        String address = accountDetails.get("address");
+
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            Long userId = user.get().getId();
+            User existingUser = user.get();
+            existingUser.setFullName(fullName);
+            userRepository.save(existingUser);
+
+            Optional<Account> account = Optional.ofNullable(accountRepository.findByUserId(userId));
+            if (account.isPresent()) {
+                Account updatedAccount = accountService.updateAccountDetails(account.get(), fullName, phone, address);
+                if (updatedAccount != null) {
+                    return ResponseEntity.ok(null);
+                }
+            }
+        }
+        return ResponseEntity.status(404).body(null);
+    }
+
 }

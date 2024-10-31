@@ -5,12 +5,8 @@
         android:icon="@android:drawable/ic_menu_myplaces"
         android:title="Profile" />
     <item
-        android:id="@+id/nav_settings"
-        android:icon="@android:drawable/ic_menu_preferences"
-        android:title="Settings" />
-    <item
         android:id="@+id/nav_about_us"
-        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:icon="@android:drawable/ic_menu_preferences"
         android:title="About us" />
     <item
         android:id="@+id/nav_logout"
