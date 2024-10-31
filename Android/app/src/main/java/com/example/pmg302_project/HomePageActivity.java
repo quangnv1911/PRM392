@@ -74,21 +74,40 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         navigationView = findViewById(R.id.nav_view);
 
         viewFlipper = findViewById(R.id.viewFlipper);
-        toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar_hompage);
         setSupportActionBar(toolbar);
+
+        String username = InMemoryStorage.get("username");
+        navigationView.getMenu().clear(); // Clear the current menu
+
+        if (username == null || username.isEmpty()) {
+            // If username is not available, show About us and Login buttons
+            navigationView.getMenu().clear();
+            navigationView.inflateMenu(R.menu.drawer_menu_guest);
+        } else {
+            // If username is available, show the current drawer menu
+            navigationView.inflateMenu(R.menu.drawer_menu);
+        }
 
         // Set up navigation item selected listener
         navigationView.setNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case 1000049:
-                    Toast.makeText(HomePageActivity.this, "Profile selected", Toast.LENGTH_SHORT).show();
-                    break;
-                case 1000000:
-                    Toast.makeText(HomePageActivity.this, "Settings selected", Toast.LENGTH_SHORT).show();
-                    break;
-                case 1000066:
-                    Toast.makeText(HomePageActivity.this, "Logout selected", Toast.LENGTH_SHORT).show();
-                    break;
+            CharSequence title = item.getTitle();
+            if (title.equals("Profile")) {
+                Intent profileIntent = new Intent(HomePageActivity.this, ProfileActivity.class);
+                startActivity(profileIntent);
+            } else if (title.equals("Settings")) {
+                Toast.makeText(HomePageActivity.this, "Settings selected", Toast.LENGTH_SHORT).show();
+            } else if (title.equals("Logout")) {
+                InMemoryStorage.clear();
+                Intent intent3 = new Intent(HomePageActivity.this, HomePageActivity.class);
+                startActivity(intent3);
+                navigationView.getMenu().clear(); // Clear the current menu
+            } else if (title.equals("About us")) {
+                Intent intent = new Intent(HomePageActivity.this, LandingPageActivity.class);
+                startActivity(intent);
+            } else if (title.equals("Login")) {
+                Intent intent2 = new Intent(HomePageActivity.this, MainActivity.class);
+                startActivity(intent2);
             }
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
