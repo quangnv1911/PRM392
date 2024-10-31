@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextEmail, editTextPassword;
     Button landingPage;
     String ip = COMMONSTRING.ip;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                     String json = "{\"username\":\"" + username + "\", \"password\":\"password\", \"method\": \"google\", \"fullName\": \"" + fullName + "\"}";
                     RequestBody body = RequestBody.create(json, JSON);
                     Request request = new Request.Builder()
-                            .url("http://"+ip+":8081/api/login")
+                            .url("http://" + ip + ":8081/api/login")
                             .post(body)
                             .build();
                     Log.d(TAG, "Sending request to: " + request.url());
@@ -160,17 +161,23 @@ public class MainActivity extends AppCompatActivity {
                                         JSONObject jsonObject = new JSONObject(responseBody);
                                         String token = jsonObject.getString("token");
                                         String refreshToken = jsonObject.getString("refreshToken");
+                                        String role = jsonObject.getString("role");
                                         String serverFullName = jsonObject.optString("fullName", "");
                                         InMemoryStorage.save("token", token);
                                         InMemoryStorage.save("refreshToken", refreshToken);
                                         InMemoryStorage.save("username", username);
-
+                                        InMemoryStorage.save("role", role);
                                         Intent intent;
                                         if (serverFullName == null || serverFullName.isEmpty()) {
                                             intent = new Intent(MainActivity.this, RegisterUserActivity.class);
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
-                                            intent = new Intent(MainActivity.this, HomePageActivity.class);
+                                            if (role.equals("Admin")) {
+                                                intent = new Intent(MainActivity.this, ManageProductActivity.class);
+                                            } else {
+                                                intent = new Intent(MainActivity.this, HomePageActivity.class);
+                                            }
+
                                         }
                                         startActivity(intent);
                                         finish(); // Kết thúc MainActivity nếu không cần quay lại
@@ -207,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
                     String json = "{\"username\":\"" + userName + "\", \"password\":\"" + password + "\", \"method\": \"other\"}";
                     RequestBody body = RequestBody.create(json, JSON);
                     Request request = new Request.Builder()
-                            .url("http://"+ip+":8081/api/login")
+                            .url("http://" + ip + ":8081/api/login")
                             .post(body)
                             .build();
                     Log.d(TAG, "Sending request to: " + request);
@@ -223,17 +230,23 @@ public class MainActivity extends AppCompatActivity {
                                         String token = jsonObject.getString("token");
                                         String refreshToken = jsonObject.getString("refreshToken");
                                         String username = jsonObject.getString("username");
+                                        String role = jsonObject.getString("role");
                                         String serverFullName = jsonObject.optString("fullName", "");
                                         InMemoryStorage.save("token", token);
                                         InMemoryStorage.save("refreshToken", refreshToken);
                                         InMemoryStorage.save("username", username);
+                                        InMemoryStorage.save("role", role);
 
                                         Intent intent;
                                         if (serverFullName.isEmpty()) {
                                             intent = new Intent(MainActivity.this, RegisterUserActivity.class);
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
-                                            intent = new Intent(MainActivity.this, HomePageActivity.class);
+                                            if (role.equals("Admin")) {
+                                                intent = new Intent(MainActivity.this, ManageProductActivity.class);
+                                            } else {
+                                                intent = new Intent(MainActivity.this, HomePageActivity.class);
+                                            }
                                         }
                                         startActivity(intent);
                                         finish();

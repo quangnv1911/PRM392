@@ -1,13 +1,11 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Product;
+import com.example.demo.model.ProductDetail;
 import com.example.demo.repo.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,16 +17,33 @@ public class ProductController {
     private ProductRepository productRepository;
 
     @GetMapping("/product")
-    public List<Product> getProductsByType(@RequestParam String type) {
+    public List<Product> getProductsByType(@RequestParam(required = false) String type) {
+
+        if(type == null){
+            return productRepository.findAll();
+        }
         return productRepository.findByType(type);
     }
+
     @GetMapping("/search")
     public ResponseEntity<List<Product>> searchProductsByName(@RequestParam String productName) {
         List<Product> products = productRepository.findByProductNameContaining(productName);
         return ResponseEntity.ok(products);
     }
+
     @GetMapping("/top")
     public List<Product> getTopProducts() {
         return productRepository.findTop5ByOrderByPurchaseCountDesc();
+    }
+
+    @GetMapping("")
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    @PutMapping("")
+    public void updateProductDetail(@RequestParam int productId, @RequestBody Product productUpdate) {
+
+        productRepository.save(productUpdate);
     }
 }
