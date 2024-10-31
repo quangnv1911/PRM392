@@ -17,6 +17,8 @@ import android.content.IntentSender;
 
 import android.os.Bundle;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 
 import android.view.View;
@@ -24,6 +26,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -54,12 +57,13 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextEmail, editTextPassword;
     Button landingPage;
     String ip = COMMONSTRING.ip;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        textView = findViewById(R.id.textView);
+
         oneTapClient = Identity.getSignInClient(this);
         signInRequest = BeginSignInRequest.builder()
                 .setPasswordRequestOptions(BeginSignInRequest.PasswordRequestOptions.builder()
@@ -67,23 +71,36 @@ public class MainActivity extends AppCompatActivity {
                         .build())
                 .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                         .setSupported(true)
-                        // Your server's client ID, not your Android client ID.
                         .setServerClientId("58005151095-t5vfq2f2nle1bn8s2n9rt1qgg4atnjgd.apps.googleusercontent.com")
-                        // Only show accounts previously used to sign in.
                         .setFilterByAuthorizedAccounts(false)
                         .build())
-                // Automatically sign in when exactly one credential is retrieved.
                 .setAutoSelectEnabled(true)
                 .build();
 
         editTextEmail = findViewById(R.id.editTextEmail);
         editTextPassword = findViewById(R.id.editTextPassword);
-        landingPage = findViewById(R.id.button4);
-    }
+        Button buttonLogin = findViewById(R.id.buttonLogin);
 
-    public void onLandingPageClicked(View view) {
-        Intent intent = new Intent(MainActivity.this, LandingPageActivity.class);
-        startActivity(intent);
+        TextWatcher loginTextWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String emailInput = editTextEmail.getText().toString().trim();
+                String passwordInput = editTextPassword.getText().toString().trim();
+
+                buttonLogin.setEnabled(!emailInput.isEmpty() && !passwordInput.isEmpty());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        };
+
+        editTextEmail.addTextChangedListener(loginTextWatcher);
+        editTextPassword.addTextChangedListener(loginTextWatcher);
     }
 
     public void buttonGoogleSignIn(View view) {
@@ -145,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
                     String json = "{\"username\":\"" + username + "\", \"password\":\"password\", \"method\": \"google\", \"fullName\": \"" + fullName + "\"}";
                     RequestBody body = RequestBody.create(json, JSON);
                     Request request = new Request.Builder()
-                            .url("http://"+ip+":8081/api/login")
+                            .url("http://" + ip + ":8081/api/login")
                             .post(body)
                             .build();
                     Log.d(TAG, "Sending request to: " + request.url());
@@ -197,17 +214,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onLoginClicked(View view) {
+        String userName = editTextEmail.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
+
+        if (userName.isEmpty() || password.isEmpty()) {
+            runOnUiThread(() -> Toast.makeText(MainActivity.this, "Please enter both email and password", Toast.LENGTH_SHORT).show());
+            return;
+        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-                    String userName = editTextEmail.getText().toString(); // Lấy giá trị từ EditText
-                    String password = editTextPassword.getText().toString(); // Lấy giá trị từ EditText
                     String json = "{\"username\":\"" + userName + "\", \"password\":\"" + password + "\", \"method\": \"other\"}";
                     RequestBody body = RequestBody.create(json, JSON);
                     Request request = new Request.Builder()
-                            .url("http://"+ip+":8081/api/login")
+                            .url("http://" + ip + ":8081/api/login")
                             .post(body)
                             .build();
                     Log.d(TAG, "Sending request to: " + request);
@@ -240,13 +263,19 @@ public class MainActivity extends AppCompatActivity {
                                     } catch (JSONException e) {
                                         throw new RuntimeException(e);
                                     }
-
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MainActivity.this, "Login failed. Wrong username or password!", Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, "Login failed: " + e.getMessage());
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "Login failed. Wrong username or password!", Toast.LENGTH_SHORT).show());
                 }
             }
         }).start();
