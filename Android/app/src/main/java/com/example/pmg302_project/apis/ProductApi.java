@@ -18,7 +18,7 @@ public interface ProductApi {
     Call<List<ProductDTO>> getProducts();
 
     @POST("api/product")
-    Call<ProductDTO> addProduct(@Body Product product);
+    Call<ProductDTO> addProduct(@Body ProductDTO product);
 
     @PUT("api/product/{id}")
     Call<ProductDTO> updateProduct(@Path("id") Integer id, @Body Product product);

@@ -1,4 +1,4 @@
-package com.example.pmg302_project.Fragments;
+package com.example.pmg302_project.Fragments.Products;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,10 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pmg302_project.DTOs.ProductDTO;
 import com.example.pmg302_project.R;
 import com.example.pmg302_project.Utils.RetrofitClient;
-import com.example.pmg302_project.adapter.ProductAdapter;
 import com.example.pmg302_project.adapter.ProductManageAdapter;
 import com.example.pmg302_project.apis.ProductApi;
-import com.example.pmg302_project.model.Product;
 
 import java.util.ArrayList;
 import java.util.List;
