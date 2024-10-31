@@ -41,6 +41,7 @@
 
                 <!-- HorizontalScrollView with buttons placed below the ViewFlipper -->
                 <HorizontalScrollView
+                    android:id="@+id/horizontal_scroll_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp">

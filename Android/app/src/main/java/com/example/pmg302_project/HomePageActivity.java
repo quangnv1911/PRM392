@@ -4,13 +4,16 @@ import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -63,8 +66,9 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.homepage); // Đảm bảo bạn có layout cho HomePageActivity
+        setContentView(R.layout.homepage);
         FirebaseApp.initializeApp(this);
+
         // Initialize drawer layout and navigation view
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
@@ -91,7 +95,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         });
 
         fetchImageUrls();
-        setupButtonListeners();
+        fetchButtonData(); // Fetch button data from API
 
         recyclerViewTopProducts = findViewById(R.id.recyclerViewTopProducts);
         recyclerViewTopProducts.setLayoutManager(new LinearLayoutManager(this));
@@ -105,6 +109,81 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         fabChat.setOnClickListener(view -> openChatBubble());
     }
 
+    private void fetchButtonData() {
+        String url = "http://" + ip + ":8081/api/buttons"; // Replace with your actual API endpoint
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    try {
+                        JSONArray jsonArray = new JSONArray(responseData);
+                        runOnUiThread(() -> {
+                            try {
+                                createButtons(jsonArray);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void createButtons(JSONArray jsonArray) throws JSONException {
+        HorizontalScrollView horizontalScrollView = findViewById(R.id.horizontal_scroll_view);
+        LinearLayout containerLayout = new LinearLayout(this);
+        containerLayout.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout firstRow = new LinearLayout(this);
+        firstRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        LinearLayout secondRow = new LinearLayout(this);
+        secondRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String buttonText = jsonObject.getString("text");
+            String buttonType = jsonObject.getString("type");
+
+            Button button = new Button(this);
+            button.setText(buttonText);
+            button.setTextColor(Color.WHITE); // Set text color to white
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    80 // height in dp
+            );
+            params.setMargins(10, 10, 10, 10); // Set margins
+            button.setLayoutParams(params);
+            button.setBackgroundResource(R.drawable.button_background); // Set your custom background
+            button.setPadding(10, 10, 10, 20); // Set padding
+            button.setOnClickListener(view -> openListProductActivity(buttonType));
+
+            if (i < 6) {
+                firstRow.addView(button);
+            } else {
+                secondRow.addView(button);
+            }
+        }
+
+        containerLayout.addView(firstRow);
+        containerLayout.addView(secondRow);
+        horizontalScrollView.removeAllViews(); // Clear any existing views
+        horizontalScrollView.addView(containerLayout); // Add the container layout as the single child
+    }
 
     private void openChatBubble() {
         // Code to open the chat bubble
