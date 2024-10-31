@@ -119,12 +119,12 @@ public class MainActivity extends AppCompatActivity {
                 String idToken = credential.getGoogleIdToken();
                 String username = credential.getId();
                 String password = credential.getPassword();
-                String fullName = credential.getDisplayName();
+//                String fullName = credential.getGivenName();
                 if (idToken != null) {
                     // Got an ID token from Google. Use it to authenticate
                     // with your backend.
                     Log.d(TAG, "Got ID token.");
-                    loginToBackend(username, fullName);
+                    loginToBackend(username, username);
                 } else if (password != null) {
                     // Got a saved username and password. Use them to authenticate
                     // with your backend.
