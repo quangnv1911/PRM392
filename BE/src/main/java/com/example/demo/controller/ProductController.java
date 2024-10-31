@@ -19,7 +19,7 @@ public class ProductController {
     @GetMapping("/product")
     public List<Product> getProductsByType(@RequestParam(required = false) String type) {
 
-        if(type == null){
+        if (type == null) {
             return productRepository.findAll();
         }
         return productRepository.findByType(type);
@@ -45,6 +45,8 @@ public class ProductController {
     public void updateProductDetail(@RequestParam int productId, @RequestBody Product productUpdate) {
 
         productRepository.save(productUpdate);
+    }
+
     @GetMapping("/searchProduct")
     public ResponseEntity<List<Product>> searchProduct(@RequestParam String search) {
         List<Product> products = productRepository.findBySearch(search);
