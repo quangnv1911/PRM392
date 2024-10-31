@@ -45,5 +45,9 @@ public class ProductController {
     public void updateProductDetail(@RequestParam int productId, @RequestBody Product productUpdate) {
 
         productRepository.save(productUpdate);
+    @GetMapping("/searchProduct")
+    public ResponseEntity<List<Product>> searchProduct(@RequestParam String search) {
+        List<Product> products = productRepository.findBySearch(search);
+        return ResponseEntity.ok(products);
     }
 }

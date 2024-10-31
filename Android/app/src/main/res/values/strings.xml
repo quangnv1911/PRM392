@@ -107,6 +107,12 @@
         libero vel nunc consequat, quis tincidunt nisl eleifend. Cras bibendum enim a justo luctus
         vestibulum. Fusce dictum libero quis erat maximus, vitae volutpat diam dignissim.
     </string>
+    <string name="profile_image">profile_image</string>
+    <string name="fullname">fullname</string>
+    <string name="phone">phone</string>
+    <string name="created_on">created_on</string>
+    <string name="update_profile">Update</string>
+    <string name="no_matching_results_found">No matching results found</string>
 
     <string-array name="statusOrder">
         <item>Chờ xử lý</item>

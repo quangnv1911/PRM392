@@ -14,7 +14,7 @@
 
         <!-- Toolbar as header -->
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_hompage"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/facebook_blue"
@@ -26,7 +26,7 @@
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/toolbar">
+            android:layout_below="@id/toolbar_hompage">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -41,6 +41,7 @@
 
                 <!-- HorizontalScrollView with buttons placed below the ViewFlipper -->
                 <HorizontalScrollView
+                    android:id="@+id/horizontal_scroll_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp">

@@ -27,4 +27,11 @@ public class AccountService {
         return Optional.empty();
 
     }
+
+    public Account updateAccountDetails(Account account, String fullName, String phone, String address) {
+        account.setFullname(fullName);
+        account.setPhone(phone);
+        account.setAddress(address);
+        return accountRepository.save(account);
+    }
 }
