@@ -31,4 +31,9 @@ public class ProductController {
     public List<Product> getTopProducts() {
         return productRepository.findTop5ByOrderByPurchaseCountDesc();
     }
+    @GetMapping("/searchProduct")
+    public ResponseEntity<List<Product>> searchProduct(@RequestParam String search) {
+        List<Product> products = productRepository.findBySearch(search);
+        return ResponseEntity.ok(products);
+    }
 }

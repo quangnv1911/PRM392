@@ -16,6 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.widget.Toolbar;
 import android.widget.ViewFlipper;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -48,7 +50,7 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
     private ProductAdapter.OnAddToCartClickListener onAddToCartClickListener;
     String ip = COMMONSTRING.ip;
 
-    @SuppressLint("DefaultLocale")
+    @SuppressLint({"DefaultLocale", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +58,8 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
 
         // Set the onAddToCartClickListener to this
         onAddToCartClickListener = this;
-
+        Toolbar toolbar = findViewById(R.id.toolbar_homepage);
+        setSupportActionBar(toolbar);
         // Nhận dữ liệu từ Intent
         int productId = getIntent().getIntExtra("productId", -1);
         String name = getIntent().getStringExtra("name");
