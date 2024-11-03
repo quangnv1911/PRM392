@@ -6,11 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByType(String type);
-
+    Optional<Product> findById(Long id);
     List<Product> findTop5ByOrderByPurchaseCountDesc();
     List<Product> findByProductNameContaining(String productName);
 

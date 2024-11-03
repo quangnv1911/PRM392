@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -18,7 +19,7 @@ public class CouponController {
     private CouponRepository couponRepository;
 
     @GetMapping("/coupondetail")
-    public Coupon getCouponByCouponCode(@RequestParam String couponcode) {
+    public Optional<Coupon> getCouponByCouponCode(@RequestParam String couponcode) {
         return couponRepository.findByCouponCode(couponcode);
     }
 

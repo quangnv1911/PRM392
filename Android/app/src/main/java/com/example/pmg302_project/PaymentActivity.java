@@ -2,22 +2,32 @@ package com.example.pmg302_project;
 
 import static android.content.ContentValues.TAG;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.adapter.PaymentAdapter;
+import com.example.pmg302_project.callbacks.QuantityCallback;
 import com.example.pmg302_project.model.Account;
 import com.example.pmg302_project.model.Coupon;
+import com.example.pmg302_project.model.OrderDetail;
+import com.example.pmg302_project.model.Orders;
 import com.example.pmg302_project.model.Product;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +35,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,9 +44,15 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -57,7 +74,7 @@ public class PaymentActivity extends AppCompatActivity {
     private TextView userPayPhone;
     private TextView userPayAddress;
 
-    private TextView txtCouponPay;
+    private EditText txtCouponPay;
     private Account account;
     public Account getAccount() {
         return account;
@@ -82,13 +99,40 @@ public class PaymentActivity extends AppCompatActivity {
         this.totalPriceUseCoupon = totalPriceUseCoupon;
     }
 
+    private int totalQuantity;
+    public int getTotalQuan() {
+        return totalQuantity;
+    }
+    public void setTotalQuan(int totalQuantity) {
+        this.totalQuantity = totalQuantity;
+    }
 
-    private Button payment;
+    private Boolean flag;
+    public Boolean getFlg() {
+        return flag;
+    }
+    public void setFlg(Boolean flag) {
+        this.flag = flag;
+    }
+
+    private Integer newQuan;
+    public Integer getQuan() {
+        return newQuan;
+    }
+    public void setQuan(Integer newQuan) {
+        this.newQuan = newQuan;
+    }
+
+    private Button checkoutButton;
     private Button editInfor;
     private Button checkCoupon;
     private TextView txtErrorCoupon;
 
-    OkHttpClient client = new OkHttpClient();
+    OkHttpClient client = new OkHttpClient.Builder()
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
+            .build();
     private String ip = COMMONSTRING.ip;
 
     @Override
@@ -111,16 +155,6 @@ public class PaymentActivity extends AppCompatActivity {
         cartList = CartPreferences.loadCart(this);
         paymentAdapter = new PaymentAdapter(this, cartList);
         recyclerViewPayment.setAdapter(paymentAdapter);
-
-        payment=findViewById(R.id.checkoutButton);
-
-        //Coupon
-        txtCouponPay=findViewById(R.id.txtCouponPay);
-        checkCoupon=findViewById(R.id.btnCheckCoupon);
-        txtErrorCoupon=findViewById(R.id.errorCouponMessage);
-        checkCoupon.setOnClickListener(vi->{
-            setCoupon(handleCoupon());
-        });
 
         editInfor=findViewById(R.id.editInfor);
         //hiển thị dialog edit thông tin người mua hàng
@@ -148,7 +182,242 @@ public class PaymentActivity extends AppCompatActivity {
             AlertDialog dialog = builder.create();
             dialog.show();
         });
+
+        //Coupon
+        txtCouponPay=findViewById(R.id.txtCouponPay);
+        txtCouponPay.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String inputText = s.toString();
+                // Ví dụ: Kiểm tra độ dài của văn bản
+                if (inputText.length() > 0) {
+                    handleCoupon();
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        checkCoupon=findViewById(R.id.btnCheckCoupon);
+        txtErrorCoupon=findViewById(R.id.errorCouponMessage);
+        checkCoupon.setOnClickListener(vi->{
+            handleCoupon();
+            if(!validateCoupon()){
+                setCoupon(null);
+                updateCartSummary();
+            };
+        });
+
+        //Checkout
+        checkoutButton=findViewById(R.id.paymentButton);
+        checkoutButton.setOnClickListener(vie->{
+            handleCoupon();
+            setFlg(true);
+            int totalProducts = cartList.size();
+            setQuan(0);
+            for (Product product : cartList) {
+                getQuantityProduct(product.getId(), new QuantityCallback() {
+                    @Override
+                    public void onQuantityReceived(int quantity) {
+                        // Thực hiện so sánh và các thao tác khác khi nhận được quantity
+                        setQuan(getQuan()+1);
+                        if (quantity < product.getQuantity()) {
+                            runOnUiThread(() ->
+                                    Toast.makeText(getApplicationContext(), product.getName() + " đã hết hàng!", Toast.LENGTH_SHORT).show()
+                            );
+
+                            setFlg(false);
+                        }
+                        if(getQuan() == totalProducts){
+                            if(getFlg()){
+                                if(txtCouponPay.getText().toString().isEmpty()){
+                                    createOrder();
+                                }else{
+                                    if(!validateCoupon()){
+                                        setCoupon(null);
+                                        updateCartSummary();
+                                    }else {
+                                        createOrder();
+                                    }
+                                }
+                            }
+                        }
+                        Log.d("Tag", quantity + " " + product.getQuantity()+""+getQuan());
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        e.printStackTrace();
+                        runOnUiThread(() ->
+                                Toast.makeText(getApplicationContext(), "Lỗi khi lấy số lượng cho sản phẩm " + product.getName(), Toast.LENGTH_SHORT).show()
+                        );
+                        setFlg(false);
+                    }
+                });
+
+            }
+
+
+            //Toast.makeText(getApplicationContext(), ""+getFlg(), Toast.LENGTH_SHORT).show();
+            //Thoả mãn điều kiện thì sẽ tạo Order
+            //createOrder();
+//            if(getFlg()){
+//                if(txtCouponPay.getText().toString().isEmpty()){
+//                    createOrder();
+//                }else{
+//                    if(!validateCoupon()){
+//                        setCoupon(null);
+//                        updateCartSummary();
+//                    }else {
+//                        createOrder();
+//                    }
+//                }
+//            }
+        });
+
         loadAccountLogin();
+    }
+
+    private void createOrder() {
+        Orders orders=new Orders();
+        Date da=new Date();
+        orders.setAccountId(getAccount().getId());
+        orders.setOrderDate(da);
+        orders.setStatus(0);
+        orders.setTotalPrice(getTotal());
+        orders.setTotalQuantity(getTotalQuan());
+        orders.setCoupon(getCoupon());
+        String url = "http://" + ip + ":8081/api/createOrder";
+
+        // Tạo JSON từ thông tin của Account
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("accountid", orders.getAccountId());
+            jsonObject.put("couponcode", txtCouponPay.getText());
+            jsonObject.put("orderdate", orders.getOrderDate());
+            jsonObject.put("status", orders.getStatus());
+            jsonObject.put("totalprice", orders.getTotalPrice());
+            jsonObject.put("totalquantity", orders.getTotalQuantity());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d(TAG, "JSON creation error: " + e.getMessage());
+            return;
+        }
+
+        // Tạo RequestBody cho POST request
+        RequestBody body = RequestBody.create(
+                jsonObject.toString(),
+                MediaType.parse("application/json; charset=utf-8")
+        );
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                Log.d(TAG, "Request failed: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+
+                    JSONObject jsonResponse = null;
+                    try {
+                        jsonResponse = new JSONObject(responseData);
+                        int id = jsonResponse.getInt("id");
+                        if(getCoupon()!=null){
+                            getCoupon().setUsageCount(getCoupon().getUsageCount()+1);
+                        }
+                        orders.setOrderId(id);
+                        createOrderDetail(orders);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+
+    }
+
+    private void createOrderDetail(Orders orders) {
+        ArrayList<OrderDetail> orderDetailList = new ArrayList();
+        for (Product product : cartList) {
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(orders);
+            orderDetail.setProduct(product);
+            orderDetail.setUnitPrice(product.getPrice());
+            orderDetail.setQuantity(product.getQuantity());
+            orderDetail.setSize(product.getSize());
+            orderDetail.setColor(product.getColor());
+            orderDetailList.add(orderDetail);
+        }
+        String url = "http://" + ip + ":8081/api/createOrderDetail";
+        JSONArray jsonArray = new JSONArray();
+        try {
+            for (OrderDetail orderDetail : orderDetailList) {
+                JSONObject orderDetailJson = new JSONObject();
+                orderDetailJson.put("orderId", orderDetail.getOrder().getOrderId()); // Hoặc các thuộc tính của Order cần thiết
+                orderDetailJson.put("productId", orderDetail.getProduct().getId()); // Hoặc các thuộc tính của Product cần thiết
+                orderDetailJson.put("unitPrice", orderDetail.getUnitPrice());
+                orderDetailJson.put("quantity", orderDetail.getQuantity());
+                orderDetailJson.put("size", orderDetail.getSize());
+                orderDetailJson.put("color", orderDetail.getColor());
+                jsonArray.put(orderDetailJson); // Thêm từng `orderDetailJson` vào `jsonArray`
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.d(TAG, "JSON creation error: " + e.getMessage());
+            return;
+        }
+
+        // Tạo RequestBody cho POST request
+        RequestBody body = RequestBody.create(
+                jsonArray.toString(),
+                MediaType.parse("application/json; charset=utf-8")
+        );
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                Log.d(TAG, "Request failed: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    runOnUiThread(()->{
+                        Toast.makeText(getApplicationContext(), responseData.toString(), Toast.LENGTH_SHORT).show();
+                        if(responseData.toString().equals("Đặt hàng thành công!")){
+                            cartList.clear();
+                            CartPreferences.saveCart(getApplicationContext(),cartList);
+                            finish();
+                        }
+                    });
+                }
+            }
+        });
+
     }
 
     private void loadAccountLogin() {
@@ -215,6 +484,9 @@ public class PaymentActivity extends AppCompatActivity {
             NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
             String formattedPrice = formatter.format(totalPrice);
             totalPriceTextView.setText("Tổng giá tiền: " + formattedPrice+" VNĐ");
+
+            setTotal(totalPrice);
+            setTotalQuan(totalQuantity);
         });
     }
 
@@ -279,13 +551,11 @@ public class PaymentActivity extends AppCompatActivity {
         });
     }
 
-    private Coupon handleCoupon() {
+    private void handleCoupon() {
         String code = String.valueOf(txtCouponPay.getText());
         if (code == null || code.isEmpty()) {
-            runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), "Không có mã giảm giá", Toast.LENGTH_SHORT).show();
-            });
-            return null;
+            setCoupon(null);
+            return;
         }
 
         String url = "http://" + ip + ":8081/api/coupondetail?couponcode=" + code;
@@ -302,6 +572,7 @@ public class PaymentActivity extends AppCompatActivity {
                 runOnUiThread(() -> {
                     Toast.makeText(getApplicationContext(), "Yêu cầu thất bại", Toast.LENGTH_SHORT).show();
                 });
+                setCoupon(null);
             }
 
             @Override
@@ -341,62 +612,57 @@ public class PaymentActivity extends AppCompatActivity {
                                 jsonObject.getInt("couponType")
                         );
                         setCoupon(coupon);
-
-                        // Perform coupon validation on the main thread
-                        if(!validateCoupon(coupon)){
-                            updateCartSummary();
-                        }
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Log.d(TAG, "JSON parsing error: " + e.getMessage());
-                        runOnUiThread(() -> {
-                            Toast.makeText(getApplicationContext(), "Không tìm thấy mã giảm giá", Toast.LENGTH_SHORT).show();
-                        });
-                        updateCartSummary();
+                        setCoupon(null);
                     }
                 } else {
                     Log.d(TAG, "Request not successful. Code: " + response.code());
-                    runOnUiThread(() -> {
-                        Toast.makeText(getApplicationContext(), "Mã giảm giá không hợp lệ", Toast.LENGTH_SHORT).show();
-                    });
-                    updateCartSummary();
+                    setCoupon(null);
                 }
             }
         });
 
-        return null; // Return null immediately, as the result will be handled asynchronously.
     }
 
-    private boolean validateCoupon(Coupon coupon) {
+    private boolean validateCoupon() {
         Date d = new Date();
-        if (coupon == null) {
+        if (getCoupon() == null) {
             runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), "Không có mã giảm giá", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Không có mã giảm giá", Toast.LENGTH_SHORT).show();
+                errorCoupon.setText("Không có mã giảm giá");
+                errorCoupon.setVisibility(View.VISIBLE);
             });
             return false;
         }
 
         // Check if the coupon is expired
-        if (d.after(coupon.getEndDate())) {
+        if (d.after(getCoupon().getEndDate())) {
             runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), "Mã giảm giá quá hạn", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Mã giảm giá quá hạn", Toast.LENGTH_SHORT).show();
+                errorCoupon.setText("Mã giảm giá quá hạn");
+                errorCoupon.setVisibility(View.VISIBLE);
             });
             return false;
         }
 
         // Check if the coupon has started
-        if (d.before(coupon.getStartDate())) {
+        if (d.before(getCoupon().getStartDate())) {
             runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), "Mã giảm giá chưa mở", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Mã giảm giá chưa mở", Toast.LENGTH_SHORT).show();
+                errorCoupon.setText("Mã giảm giá chưa mở");
+                errorCoupon.setVisibility(View.VISIBLE);
             });
             return false;
         }
 
         // Check if the coupon is active
-        if (!coupon.getActive()) {
+        if (!getCoupon().getActive()) {
             runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), "Mã giảm giá không kích hoạt", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Mã giảm giá không kích hoạt", Toast.LENGTH_SHORT).show();
+                errorCoupon.setText("Mã giảm giá không kích hoạt");
+                errorCoupon.setVisibility(View.VISIBLE);
             });
             return false;
         }
@@ -404,38 +670,46 @@ public class PaymentActivity extends AppCompatActivity {
         // Check max and min order values
         double totalPrice = cartList.stream().mapToDouble(product -> product.getQuantity() * product.getPrice()).sum();
 
-        if (coupon.getMaxOrderValue() < totalPrice) {
+        if (getCoupon().getMaxOrderValue() < totalPrice) {
             runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), "Tổng tiền vượt quá yêu cầu áp dụng giảm giá", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Tổng tiền vượt quá yêu cầu áp dụng giảm giá", Toast.LENGTH_SHORT).show();
+                errorCoupon.setText("Tổng tiền vượt quá yêu cầu áp dụng giảm giá");
+                errorCoupon.setVisibility(View.VISIBLE);
             });
             return false;
         }
 
-        if (coupon.getMinOrderValue() > totalPrice) {
+        if (getCoupon().getMinOrderValue() > totalPrice) {
             runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), "Tổng tiền không đạt yêu cầu áp dụng giảm giá", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Tổng tiền không đạt yêu cầu áp dụng giảm giá", Toast.LENGTH_SHORT).show();
+                errorCoupon.setText("Tổng tiền không đạt yêu cầu áp dụng giảm giá");
+                errorCoupon.setVisibility(View.VISIBLE);
             });
             return false;
         }
 
         // Check usage limit
-        if (coupon.getUsageCount() >= coupon.getUsageLimit()) {
+        if (getCoupon().getUsageCount() >= getCoupon().getUsageLimit()) {
             runOnUiThread(() -> {
-                Toast.makeText(getApplicationContext(), "Mã giảm giá đã hết lượt sử dụng", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Mã giảm giá đã hết lượt sử dụng", Toast.LENGTH_SHORT).show();
+                errorCoupon.setText("Mã giảm giá đã hết lượt sử dụng");
+                errorCoupon.setVisibility(View.VISIBLE);
             });
             return false;
         }
 
-        String discountType = coupon.getCouponType() == 0 ? "%" : "VNĐ";
+        String discountType = getCoupon().getCouponType() == 0 ? "%" : "VNĐ";
         runOnUiThread(() -> {
-            Toast.makeText(getApplicationContext(), "Thành công! Bạn được giảm " + coupon.getDiscountValue() + " " + discountType, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getApplicationContext(), "Thành công! Bạn được giảm " + coupon.getDiscountValue() + " " + discountType, Toast.LENGTH_SHORT).show();
+            errorCoupon.setText("Thành công! Bạn được giảm " + getCoupon().getDiscountValue() + " " + discountType);
+            errorCoupon.setVisibility(View.VISIBLE);
         });
 
         // Apply discount
-        if (coupon.getCouponType() == 0) {
-            totalPrice -= totalPrice * coupon.getDiscountValue() / 100;
+        if (getCoupon().getCouponType() == 0) {
+            totalPrice -= totalPrice * getCoupon().getDiscountValue() / 100;
         } else {
-            totalPrice -= coupon.getDiscountValue();
+            totalPrice -= getCoupon().getDiscountValue();
         }
         setTotal(totalPrice);
         runOnUiThread(() -> {
@@ -445,6 +719,42 @@ public class PaymentActivity extends AppCompatActivity {
         });
         return true;
     }
+
+    private void getQuantityProduct(int productId, QuantityCallback callback) {
+        String url = "http://" + ip + ":8081/api/productById?id=" + productId;
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                callback.onError(e); // Gọi callback khi có lỗi
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    Log.d(TAG, "Sending request to: " + request.url());
+                    Log.d(TAG, "body: " + responseData);
+                    try {
+                        JSONObject jsonObject = new JSONObject(responseData);
+                        int stockQuantity = jsonObject.getInt("stockQuantity");
+                        callback.onQuantityReceived(stockQuantity); // Gọi callback khi có kết quả
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        callback.onError(e);
+                    }
+                } else {
+                    callback.onError(new IOException("Response not successful"));
+                }
+            }
+        });
+    }
+
 
 }
 
