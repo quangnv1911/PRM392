@@ -1,25 +1,44 @@
-// src/main/java/com/example/demo/controller/OrderController.java
 package com.example.demo.controller;
 
+import com.example.demo.model.Account;
+import com.example.demo.model.Coupon;
 import com.example.demo.model.OrderDetail;
 import com.example.demo.model.Orders;
 import com.example.demo.model.User;
+import com.example.demo.repo.AccountRepository;
+import com.example.demo.repo.CouponRepository;
 import com.example.demo.repo.OrderDetailRepository;
+import com.example.demo.repo.OrderRepository;
 import com.example.demo.repo.OrdersRepository;
 import com.example.demo.repo.UserRepository;
+import com.example.demo.service.OrderService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
 public class OrderController {
+    @Autowired
+    private AccountRepository accountRepository;
+    @Autowired
+    private CouponRepository couponRepository;
+    @Autowired
+    private OrderService orderService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -43,5 +62,30 @@ public class OrderController {
             }
         }
         return ResponseEntity.ok(false);
+    }
+
+    @PostMapping("/createOrder")
+    public ResponseEntity<Map<String, Integer>> createOrder(@RequestBody Map<String, String> order) throws ParseException {
+
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+        Long accountId = Long.parseLong(order.get("accountid"));
+        String couponCode = order.get("couponcode");
+        Optional<Account> account=accountRepository.findById(accountId);
+        Optional<Coupon> coupon=couponRepository.findByCouponCode(couponCode);
+        Date orderdate = formatter.parse(order.get("orderdate"));
+        int status = Integer.parseInt(order.get("status"));
+        double totalprice = Double.parseDouble(order.get("totalprice"));
+        int totalquantity = Integer.parseInt(order.get("totalquantity"));
+
+        Coupon coupon1=null;
+        if(coupon.isPresent()){
+            coupon1=coupon.get();
+        }
+
+        int id = orderService.addOrder(account.get(),coupon1, orderdate, status, totalprice, totalquantity);
+        Map<String, Integer> response = new HashMap<>();
+        response.put("id", id);
+        return ResponseEntity.ok(response);
+
     }
 }
