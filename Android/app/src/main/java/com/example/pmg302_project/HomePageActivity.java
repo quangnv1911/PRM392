@@ -4,13 +4,17 @@ import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.SearchView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
@@ -63,35 +67,55 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.homepage); // Đảm bảo bạn có layout cho HomePageActivity
+        setContentView(R.layout.homepage);
         FirebaseApp.initializeApp(this);
+
         // Initialize drawer layout and navigation view
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
 
         viewFlipper = findViewById(R.id.viewFlipper);
-        toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar_hompage);
         setSupportActionBar(toolbar);
+
+        String username = InMemoryStorage.get("username");
+        navigationView.getMenu().clear(); // Clear the current menu
+
+        if (username == null || username.isEmpty()) {
+            // If username is not available, show About us and Login buttons
+            navigationView.getMenu().clear();
+            navigationView.inflateMenu(R.menu.drawer_menu_guest);
+        } else {
+            // If username is available, show the current drawer menu
+            navigationView.inflateMenu(R.menu.drawer_menu);
+        }
 
         // Set up navigation item selected listener
         navigationView.setNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case 1000049:
-                    Toast.makeText(HomePageActivity.this, "Profile selected", Toast.LENGTH_SHORT).show();
-                    break;
-                case 1000000:
-                    Toast.makeText(HomePageActivity.this, "Settings selected", Toast.LENGTH_SHORT).show();
-                    break;
-                case 1000066:
-                    Toast.makeText(HomePageActivity.this, "Logout selected", Toast.LENGTH_SHORT).show();
-                    break;
+            CharSequence title = item.getTitle();
+            if (title.equals("Profile")) {
+                Intent profileIntent = new Intent(HomePageActivity.this, ProfileActivity.class);
+                startActivity(profileIntent);
+            } else if (title.equals("Settings")) {
+                Toast.makeText(HomePageActivity.this, "Settings selected", Toast.LENGTH_SHORT).show();
+            } else if (title.equals("Logout")) {
+                InMemoryStorage.clear();
+                Intent intent3 = new Intent(HomePageActivity.this, HomePageActivity.class);
+                startActivity(intent3);
+                navigationView.getMenu().clear(); // Clear the current menu
+            } else if (title.equals("About us")) {
+                Intent intent = new Intent(HomePageActivity.this, LandingPageActivity.class);
+                startActivity(intent);
+            } else if (title.equals("Login")) {
+                Intent intent2 = new Intent(HomePageActivity.this, MainActivity.class);
+                startActivity(intent2);
             }
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         });
 
         fetchImageUrls();
-        setupButtonListeners();
+        fetchButtonData(); // Fetch button data from API
 
         recyclerViewTopProducts = findViewById(R.id.recyclerViewTopProducts);
         recyclerViewTopProducts.setLayoutManager(new LinearLayoutManager(this));
@@ -105,6 +129,81 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         fabChat.setOnClickListener(view -> openChatBubble());
     }
 
+    private void fetchButtonData() {
+        String url = "http://" + ip + ":8081/api/buttons"; // Replace with your actual API endpoint
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    try {
+                        JSONArray jsonArray = new JSONArray(responseData);
+                        runOnUiThread(() -> {
+                            try {
+                                createButtons(jsonArray);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    private void createButtons(JSONArray jsonArray) throws JSONException {
+        HorizontalScrollView horizontalScrollView = findViewById(R.id.horizontal_scroll_view);
+        LinearLayout containerLayout = new LinearLayout(this);
+        containerLayout.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout firstRow = new LinearLayout(this);
+        firstRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        LinearLayout secondRow = new LinearLayout(this);
+        secondRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String buttonText = jsonObject.getString("text");
+            String buttonType = jsonObject.getString("type");
+
+            Button button = new Button(this);
+            button.setText(buttonText);
+            button.setTextColor(Color.WHITE); // Set text color to white
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    80 // height in dp
+            );
+            params.setMargins(10, 10, 10, 10); // Set margins
+            button.setLayoutParams(params);
+            button.setBackgroundResource(R.drawable.button_background); // Set your custom background
+            button.setPadding(10, 10, 10, 20); // Set padding
+            button.setOnClickListener(view -> openListProductActivity(buttonType));
+
+            if (i < 6) {
+                firstRow.addView(button);
+            } else {
+                secondRow.addView(button);
+            }
+        }
+
+        containerLayout.addView(firstRow);
+        containerLayout.addView(secondRow);
+        horizontalScrollView.removeAllViews(); // Clear any existing views
+        horizontalScrollView.addView(containerLayout); // Add the container layout as the single child
+    }
 
     private void openChatBubble() {
         // Code to open the chat bubble
@@ -210,6 +309,10 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             drawerLayout.openDrawer(GravityCompat.START);
             return true;
         }
+        if (item.getItemId() == R.id.action_search) {
+            // No need to handle search item click here as it is handled in onCreateOptionsMenu
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -217,7 +320,54 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.toolbar_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        androidx.appcompat.widget.SearchView searchView = (androidx.appcompat.widget.SearchView) searchItem.getActionView();
+
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                searchProduct(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
         return true;
+    }
+
+    private void searchProduct(String query) {
+        String url = "http://" + ip + ":8081/api/searchProduct?search=" + query;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(HomePageActivity.this, "Search failed", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    runOnUiThread(() -> {
+                        Intent intent = new Intent(HomePageActivity.this, SearchResultsActivity.class);
+                        intent.putExtra("searchResults", responseData);
+                        startActivity(intent);
+                    });
+                } else {
+                    runOnUiThread(() -> Toast.makeText(HomePageActivity.this, "Search failed", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
     }
 
     private void fetchImageUrls() {
