@@ -25,7 +25,9 @@ import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.model.Product;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -33,12 +35,14 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private Context context;
     private OnAddToCartClickListener onAddToCartClickListener;
     private boolean isCart;
+    private Set<Integer> favoriteProductIds;
 
     public ProductAdapter(Context context, List<Product> productList, OnAddToCartClickListener onAddToCartClickListener, boolean isCart) {
         this.context = context;
         this.productList = productList;
         this.onAddToCartClickListener = onAddToCartClickListener;
         this.isCart = isCart;
+        this.favoriteProductIds = new HashSet<>();
     }
 
     @Override
@@ -99,9 +103,14 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 intent.putExtra("description", product.getDescription());
                 context.startActivity(intent);
             });
-        }
-    }
 
+        int productId = product.getId();
+        productHolder.imgFavorite.setImageResource(
+                favoriteProductIds.contains(productId) ?
+                        R.drawable.ic_heart_filled : R.drawable.ic_heart
+        ); // Change icon based on favorite status
+    }
+    }
     @Override
     public int getItemCount() {
         return productList.size();
@@ -178,6 +187,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView productPurchase;
         Button addToCartButton;
         Button detailButton; // Add reference to detailButton
+        ImageView imgFavorite;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -189,6 +199,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             productPurchase = itemView.findViewById(R.id.productPurchase);
             addToCartButton = itemView.findViewById(R.id.button);
             detailButton = itemView.findViewById(R.id.detailButton); // Initialize detailButton
+            imgFavorite = itemView.findViewById(R.id.imgFavorite);
         }
     }
 
