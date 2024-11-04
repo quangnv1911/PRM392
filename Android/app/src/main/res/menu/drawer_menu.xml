@@ -9,6 +9,10 @@
         android:icon="@android:drawable/ic_menu_preferences"
         android:title="About us" />
     <item
+        android:id="@+id/nav_order_history"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="Order History" />
+    <item
         android:id="@+id/nav_logout"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="Logout" />
