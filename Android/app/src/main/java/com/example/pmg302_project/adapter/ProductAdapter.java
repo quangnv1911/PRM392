@@ -28,6 +28,7 @@ import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.model.Product;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashSet;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,6 +36,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -48,6 +50,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private Context context;
     private OnAddToCartClickListener onAddToCartClickListener;
     private boolean isCart;
+    private Set<Integer> favoriteProductIds;
     private OkHttpClient client = new OkHttpClient();
     private Activity activity; // Add this field
     String ip = COMMONSTRING.ip;
@@ -57,8 +60,8 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.productList = productList;
         this.onAddToCartClickListener = onAddToCartClickListener;
         this.isCart = isCart;
+        this.favoriteProductIds = new HashSet<>();
         this.activity = activity; // Initialize this field
-
     }
 
     @Override
@@ -119,9 +122,14 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 intent.putExtra("description", product.getDescription());
                 context.startActivity(intent);
             });
-        }
-    }
 
+        int productId = product.getId();
+        productHolder.imgFavorite.setImageResource(
+                favoriteProductIds.contains(productId) ?
+                        R.drawable.ic_heart_filled : R.drawable.ic_heart
+        ); // Change icon based on favorite status
+    }
+    }
     @Override
     public int getItemCount() {
         return productList.size();
@@ -252,6 +260,7 @@ private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner col
         TextView productPurchase;
         Button addToCartButton;
         Button detailButton; // Add reference to detailButton
+        ImageView imgFavorite;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -263,6 +272,7 @@ private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner col
             productPurchase = itemView.findViewById(R.id.productPurchase);
             addToCartButton = itemView.findViewById(R.id.button);
             detailButton = itemView.findViewById(R.id.detailButton); // Initialize detailButton
+            imgFavorite = itemView.findViewById(R.id.imgFavorite);
         }
     }
 
