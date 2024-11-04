@@ -58,7 +58,7 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Khởi tạo danh sách sản phẩm (trống) và adapter trước khi fetch data
-        productAdapter = new ProductAdapter(this, productList, this, false);
+        productAdapter = new ProductAdapter(this, this, productList, this, false);
         recyclerView.setAdapter(productAdapter);
 
         fetchProduct(productType);

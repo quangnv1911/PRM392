@@ -39,7 +39,7 @@ public class SearchResultsActivity extends AppCompatActivity {
         noResultsMessage = findViewById(R.id.noResultsMessage);
 
         recyclerViewSearchResults.setLayoutManager(new LinearLayoutManager(this));
-        productAdapter = new ProductAdapter(this, productList, null, false);
+        productAdapter = new ProductAdapter(this,this, productList, null, false);
         recyclerViewSearchResults.setAdapter(productAdapter);
 
         String searchResults = getIntent().getStringExtra("searchResults");

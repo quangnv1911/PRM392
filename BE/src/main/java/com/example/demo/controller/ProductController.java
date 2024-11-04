@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -76,5 +78,19 @@ public class ProductController {
     public ResponseEntity<List<Product>> searchProduct(@RequestParam String search) {
         List<Product> products = productRepository.findBySearch(search);
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/product/sizes-colors")
+    public ResponseEntity<Map<String, List<String>>> getSizesAndColorsByProductId(@RequestParam Long productId) {
+        Optional<Product> productOptional = productRepository.findById(productId);
+        if (productOptional.isPresent()) {
+            Product product = productOptional.get();
+            Map<String, List<String>> response = new HashMap<>();
+            response.put("sizes", product.getSizes());
+            response.put("colors", product.getColors());
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

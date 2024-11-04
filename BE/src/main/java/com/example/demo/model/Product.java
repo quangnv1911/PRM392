@@ -3,6 +3,8 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "product")
 @AllArgsConstructor
@@ -37,4 +39,9 @@ public class Product {
     private double rate;
     private String description;
     private Integer createdBy;
+    @ElementCollection
+    private List<String> sizes;
+
+    @ElementCollection
+    private List<String> colors;
 }

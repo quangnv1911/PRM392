@@ -120,7 +120,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         recyclerViewTopProducts = findViewById(R.id.recyclerViewTopProducts);
         recyclerViewTopProducts.setLayoutManager(new LinearLayoutManager(this));
 
-        productAdapter = new ProductAdapter(this, productList, this, false);
+        productAdapter = new ProductAdapter(this,this, productList, this, false);
         recyclerViewTopProducts.setAdapter(productAdapter);
 
         fetchTopProducts();
