@@ -18,9 +18,10 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/facebook_blue"
+            android:minHeight="150dp"
+            app:menu="@menu/toolbar_menu"
             app:title="Home"
-            app:titleTextColor="@android:color/white"
-            app:menu="@menu/toolbar_menu"/>
+            app:titleTextColor="@android:color/white" />
 
         <!-- ScrollView to make the content below the toolbar scrollable -->
         <ScrollView

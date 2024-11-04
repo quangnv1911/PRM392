@@ -72,12 +72,12 @@ VALUES (1, '2024-01-01', 100, 0, 1, 10000),
        (4, '2024-01-04', 400, 1, 4, 40000),
        (5, '2024-01-05', 500, 1, 5, 50000);
 
-INSERT INTO order_detail (id, quantity, unit_price, order_order_id, product_product_id, coupon_id)
-VALUES (1, 2, 50, 1, 1, 1),
-       (2, 1, 100, 2, 2, 2),
-       (3, 3, 80, 3, 3, 3),
-       (4, 1, 400, 4, 4, 4),
-       (5, 2, 250, 5, 5, 5);
+INSERT INTO order_detail (id, quantity, unit_price, order_id, product_id, size, color)
+VALUES (1, 2, 50, 1, 1, 'S', 'Red'),
+       (2, 1, 100, 2, 2, 'S','Blue'),
+       (3, 3, 80, 3, 3, 'S','Black'),
+       (4, 1, 400, 4, 4, 'M','Yellow'),
+       (5, 2, 250, 5, 5, 'S','Gray');
 
 INSERT INTO flipper (id, image_link)
 values (1, 'https://anhvienpiano.com/wp-content/uploads/2018/08/dich-vu-chup-anh-thoi-trang-cho-shop-quan-ao-dep-gia-re.jpg'),

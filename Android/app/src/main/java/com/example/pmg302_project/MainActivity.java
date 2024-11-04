@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
                                             if (role.equals("Admin")) {
-                                                intent = new Intent(MainActivity.this, ManageProductActivity.class);
+                                                intent = new Intent(MainActivity.this, DashboardActivity.class);
                                             } else {
                                                 intent = new Intent(MainActivity.this, HomePageActivity.class);
                                             }
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
                                             if (role.equals("Admin")) {
-                                                intent = new Intent(MainActivity.this, ManageProductActivity.class);
+                                                intent = new Intent(MainActivity.this, DashboardActivity.class);
                                             } else {
                                                 intent = new Intent(MainActivity.this, HomePageActivity.class);
                                             }
