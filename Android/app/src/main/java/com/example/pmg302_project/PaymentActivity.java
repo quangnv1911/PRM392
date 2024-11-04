@@ -11,8 +11,8 @@ import android.os.Bundle;
 
 import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
+import com.example.pmg302_project.adapter.OrderHistoryAdapter;
 import com.example.pmg302_project.adapter.PaymentAdapter;
-import com.example.pmg302_project.callbacks.QuantityCallback;
 import com.example.pmg302_project.model.Account;
 import com.example.pmg302_project.model.Coupon;
 import com.example.pmg302_project.model.OrderDetail;
@@ -21,6 +21,8 @@ import com.example.pmg302_project.model.Product;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -219,49 +221,55 @@ public class PaymentActivity extends AppCompatActivity {
         checkoutButton.setOnClickListener(vie->{
             handleCoupon();
             setFlg(true);
-            int totalProducts = cartList.size();
             setQuan(0);
-            for (Product product : cartList) {
-                getQuantityProduct(product.getId(), new QuantityCallback() {
-                    @Override
-                    public void onQuantityReceived(int quantity) {
-                        // Thực hiện so sánh và các thao tác khác khi nhận được quantity
-                        setQuan(getQuan()+1);
-                        if (quantity < product.getQuantity()) {
-                            runOnUiThread(() ->
-                                    Toast.makeText(getApplicationContext(), product.getName() + " đã hết hàng!", Toast.LENGTH_SHORT).show()
-                            );
+            Handler mainHandler = new Handler(Looper.getMainLooper());
+            new Thread(() -> {
+                CountDownLatch latch = new CountDownLatch(cartList.size());
 
-                            setFlg(false);
-                        }
-                        if(getQuan() == totalProducts){
-                            if(getFlg()){
-                                if(txtCouponPay.getText().toString().isEmpty()){
-                                    createOrder();
-                                }else{
-                                    if(!validateCoupon()){
-                                        setCoupon(null);
-                                        updateCartSummary();
-                                    }else {
-                                        createOrder();
-                                    }
-                                }
+                for (Product product : cartList) {
+                    new Thread(() -> {
+                        int quantity = getQuantityProductSync(product.getId()); // Thực hiện kiểm tra hàng tồn kho đồng bộ
+                        mainHandler.post(() -> {
+                            Log.d("TagL", quantity + "..." + product.getQuantity());
+                            if (quantity < product.getQuantity()) {
+                                runOnUiThread(() ->
+                                        Toast.makeText(getApplicationContext(), product.getName() + " đã hết hàng!", Toast.LENGTH_SHORT).show()
+                                );
+                                setFlg(false);
+                            }
+                            Log.d("Tag1", quantity + " " + product.getQuantity() + " " + getFlg());
+                            latch.countDown(); // Đếm ngược latch sau khi kiểm tra xong sản phẩm
+                        });
+                    }).start();
+                }
+
+                // Đợi cho đến khi tất cả các sản phẩm được kiểm tra xong
+                try {
+                    latch.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                // Tất cả các kiểm tra đã hoàn tất, chuyển về luồng chính
+                mainHandler.post(() -> {
+                    if (getFlg()) {
+                        Log.d("Tag2", "" + getFlg());
+                        if (txtCouponPay.getText().toString().isEmpty()) {
+                            createOrder();
+                        } else {
+                            if (!validateCoupon()) {
+                                setCoupon(null);
+                                updateCartSummary();
+                            } else {
+                                createOrder();
                             }
                         }
-                        Log.d("Tag", quantity + " " + product.getQuantity()+""+getQuan());
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        e.printStackTrace();
-                        runOnUiThread(() ->
-                                Toast.makeText(getApplicationContext(), "Lỗi khi lấy số lượng cho sản phẩm " + product.getName(), Toast.LENGTH_SHORT).show()
-                        );
-                        setFlg(false);
                     }
                 });
-
-            }
+            }).start();
+        });
+        loadAccountLogin();
+    }
 
 
             //Toast.makeText(getApplicationContext(), ""+getFlg(), Toast.LENGTH_SHORT).show();
@@ -279,10 +287,10 @@ public class PaymentActivity extends AppCompatActivity {
 //                    }
 //                }
 //            }
-        });
 
-        loadAccountLogin();
-    }
+
+
+
 
     private void createOrder() {
         Orders orders=new Orders();
@@ -720,7 +728,9 @@ public class PaymentActivity extends AppCompatActivity {
         return true;
     }
 
-    private void getQuantityProduct(int productId, QuantityCallback callback) {
+    private int getQuantityProductSync(int productId ) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final int[] quantity = {0};
         String url = "http://" + ip + ":8081/api/productById?id=" + productId;
         Request request = new Request.Builder()
                 .url(url)
@@ -730,7 +740,7 @@ public class PaymentActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
-                callback.onError(e); // Gọi callback khi có lỗi
+                latch.countDown();
             }
 
             @Override
@@ -742,17 +752,23 @@ public class PaymentActivity extends AppCompatActivity {
                     try {
                         JSONObject jsonObject = new JSONObject(responseData);
                         int stockQuantity = jsonObject.getInt("stockQuantity");
-                        callback.onQuantityReceived(stockQuantity); // Gọi callback khi có kết quả
-
+                        quantity[0] = stockQuantity;
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        callback.onError(e);
                     }
-                } else {
-                    callback.onError(new IOException("Response not successful"));
                 }
+                latch.countDown();
             }
         });
+
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return quantity[0];
+
     }
 
 

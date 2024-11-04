@@ -109,6 +109,9 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             } else if (title.equals("Login")) {
                 Intent intent2 = new Intent(HomePageActivity.this, MainActivity.class);
                 startActivity(intent2);
+            }else if (title.equals("Order History")) {
+                Intent intent2 = new Intent(HomePageActivity.this, OrderHistoryActivity.class);
+                startActivity(intent2);
             }
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;

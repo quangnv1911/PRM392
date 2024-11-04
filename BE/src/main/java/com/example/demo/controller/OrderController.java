@@ -8,7 +8,6 @@ import com.example.demo.model.User;
 import com.example.demo.repo.AccountRepository;
 import com.example.demo.repo.CouponRepository;
 import com.example.demo.repo.OrderDetailRepository;
-import com.example.demo.repo.OrderRepository;
 import com.example.demo.repo.OrdersRepository;
 import com.example.demo.repo.UserRepository;
 import com.example.demo.service.OrderService;
@@ -87,5 +86,29 @@ public class OrderController {
         response.put("id", id);
         return ResponseEntity.ok(response);
 
+    }
+
+    @GetMapping("/getOrderHistoryByAccId")
+    public List<Orders> getOrderHistoryByUserId(@RequestParam String username) throws ParseException {
+        Optional<User> user = userRepository.findByUsername(username);
+        if (user.isPresent()) {
+            Long userId = user.get().getId();
+            List<Orders> orders = ordersRepository.findByAccountUserIdOrderByOrderDateDesc(userId);
+            return orders;
+        }
+        return null;
+    }
+
+    @PostMapping("/changeOrderStatus")
+    public ResponseEntity<Boolean> changeOrderStatus(@RequestBody Map<String, String> input) throws ParseException {
+        int orderid=Integer.parseInt(input.get("orderId"));
+        int statusid=Integer.parseInt(input.get("statusId"));
+        Optional<Orders> orders = ordersRepository.findByOrderId(orderid);
+        if (orders.isPresent()) {
+            orders.get().setStatus(statusid);
+            ordersRepository.save(orders.get());
+            return ResponseEntity.ok(true);
+        }
+        return ResponseEntity.ok(false);
     }
 }
