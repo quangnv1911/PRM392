@@ -43,7 +43,7 @@ public class CartActivity extends AppCompatActivity {
 
         // Fetch cart data from CartPreferences
         cartList = CartPreferences.loadCart(this);
-        productAdapter = new ProductAdapter(this, cartList, null, true);
+        productAdapter = new ProductAdapter(this,this, cartList, null, true);
         recyclerViewCart.setAdapter(productAdapter);
 
         TextView emptyCartMessage = findViewById(R.id.emptyCartMessage);
@@ -105,7 +105,7 @@ public class CartActivity extends AppCompatActivity {
 
         // Fetch cart data from CartPreferences
         cartList = CartPreferences.loadCart(this);
-        productAdapter = new ProductAdapter(this, cartList, null, true);
+        productAdapter = new ProductAdapter(this,this, cartList, null, true);
         recyclerViewCart.setAdapter(productAdapter);
 
         TextView emptyCartMessage = findViewById(R.id.emptyCartMessage);
