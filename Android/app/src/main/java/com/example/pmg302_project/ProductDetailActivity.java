@@ -16,6 +16,9 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.widget.Toolbar;
+
 import android.widget.ViewFlipper;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,14 +33,22 @@ import com.google.gson.reflect.TypeToken;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import okhttp3.Call;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class ProductDetailActivity extends AppCompatActivity implements ProductAdapter.OnAddToCartClickListener {
@@ -47,18 +58,34 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
     private List<Product> cartList = new ArrayList<>();
     private ProductAdapter.OnAddToCartClickListener onAddToCartClickListener;
     String ip = COMMONSTRING.ip;
+    private Button submitReviewButton;
 
-    @SuppressLint("DefaultLocale")
+    @SuppressLint({"DefaultLocale", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_detail);
+        submitReviewButton = findViewById(R.id.submitReviewButton);
 
         // Set the onAddToCartClickListener to this
         onAddToCartClickListener = this;
+        Toolbar toolbar = findViewById(R.id.toolbar_homepage);
+        setSupportActionBar(toolbar);
 
+        AtomicReference<String> username = new AtomicReference<>(InMemoryStorage.get("username"));
+        AtomicInteger productId = new AtomicInteger(getIntent().getIntExtra("productId", -1));
+        if (username.get() == null || username.get().isEmpty()) {
+            submitReviewButton.setEnabled(false);
+        } else {
+            checkPurchaseStatus(username.get(), productId.get(), () -> {
+                // User has purchased the product, enable the button
+                submitReviewButton.setEnabled(false);
+            }, () -> {
+                // User has not purchased the product, disable the button
+                submitReviewButton.setEnabled(true);
+            });
+        }
         // Nhận dữ liệu từ Intent
-        int productId = getIntent().getIntExtra("productId", -1);
         String name = getIntent().getStringExtra("name");
         double price = getIntent().getDoubleExtra("price", 0);
         double rate = getIntent().getDoubleExtra("rate", 0);
@@ -86,12 +113,147 @@ public class ProductDetailActivity extends AppCompatActivity implements ProductA
 
         addToCartButton.setOnClickListener(v -> {
             Log.d(TAG, "Add to Cart button clicked");
-            Product product = new Product(productId, name, description, price, imageLink, type, rate, purchaseCount);
+            Product product = new Product(productId.get(), name, description, price, imageLink, type, rate, purchaseCount);
             showAddToCartDialog(product);
         });
 
+        submitReviewButton.setOnClickListener(v -> {
+            username.set(InMemoryStorage.get("username"));
+            productId.set(getIntent().getIntExtra("productId", -1));
+            String feedback = ((EditText) findViewById(R.id.reviewInput)).getText().toString().trim();
+
+            if (feedback.isEmpty()) {
+                Toast.makeText(ProductDetailActivity.this, "Please enter your feedback", Toast.LENGTH_SHORT).show();
+            } else {
+                submitFeedback(username.get(), productId.get(), feedback);
+
+            }
+        });
+
         // Tải hình ảnh từ API
-        fetchProductImages(productId);
+        fetchProductImages(productId.get());
+        fetchFeedbacks(productId);
+    }
+
+    private void fetchFeedbacks(AtomicInteger productId) {
+        String url = "http://" + ip + ":8081/api/getFeedbacks?productId=" + productId;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String jsonResponse = response.body().string();
+                    runOnUiThread(() -> displayFeedbacks(jsonResponse));
+                }
+            }
+        });
+    }
+
+    @SuppressLint({"MissingInflatedId", "SetTextI18n"})
+    private void displayFeedbacks(String jsonResponse) {
+        try {
+            JSONObject feedbacks = new JSONObject(jsonResponse);
+            LinearLayout reviewsContainer = findViewById(R.id.reviewsContainer);
+            reviewsContainer.removeAllViews();
+
+            for (Iterator<String> it = feedbacks.keys(); it.hasNext(); ) {
+                String fullName = it.next();
+                String feedback = feedbacks.getString(fullName);
+
+                View reviewView = getLayoutInflater().inflate(R.layout.item_feedback, reviewsContainer, false);
+                TextView reviewText = reviewView.findViewById(R.id.reviewText);
+
+                reviewText.setText(fullName + ": " + feedback);
+
+                reviewsContainer.addView(reviewView);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void checkPurchaseStatus(String username, int productId, Runnable onSuccess, Runnable onFailure) {
+        String url = "http://" + ip + ":8081/api/checkPurchase?username=" + username + "&productId=" + productId;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(onFailure);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseData = response.body().string();
+                    boolean hasPurchased = Boolean.parseBoolean(responseData);
+                    runOnUiThread(() -> {
+                        if (hasPurchased) {
+                            onSuccess.run();
+                        } else {
+                            onFailure.run();
+                        }
+                    });
+                } else {
+                    runOnUiThread(onFailure);
+                }
+            }
+        });
+    }
+
+    private void submitFeedback(String username, int productId, String feedback) {
+        String url = "http://" + ip + ":8081/api/submitFeedback";
+        MediaType JSON = MediaType.get("application/json; charset=utf-8");
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("username", username);
+            jsonObject.put("productId", productId);
+            jsonObject.put("feedback", feedback);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(ProductDetailActivity.this, "Failed to submit feedback", Toast.LENGTH_SHORT).show());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(ProductDetailActivity.this, "Feedback submitted successfully", Toast.LENGTH_SHORT).show();
+                        EditText reviewInput = findViewById(R.id.reviewInput);
+                        reviewInput.setText("");
+                        recreate(); // Reload the activity
+                    });
+                } else {
+                    runOnUiThread(() -> Toast.makeText(ProductDetailActivity.this, "Failed to submit feedback", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
     }
 
     private void showAddToCartDialog(Product product) {

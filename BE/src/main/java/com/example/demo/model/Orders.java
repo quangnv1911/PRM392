@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Date;
+import java.util.Optional;
 
 @Entity
 @Table(name = "orders")
@@ -18,18 +20,24 @@ public class Orders {
     private Integer orderId;
 
     @Column(nullable = false)
-    private LocalDate orderDate;
+    private Date orderDate;
 
     @Column(nullable = false)
     private Integer totalQuantity;
 
     @Column(nullable = false)
-    private Float totalPrice;
+    private Double totalPrice;
 
     @Column(nullable = false)
     private Integer status;
 
     @ManyToOne
-    @JoinColumn(name = "accountId", nullable = false)
+    @JoinColumn(nullable = false, name = "accountId")
     private Account account;
+
+    @ManyToOne
+    @JoinColumn(name = "couponId")
+    private Coupon coupon;
+
+
 }

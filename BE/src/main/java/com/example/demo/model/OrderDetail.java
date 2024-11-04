@@ -19,22 +19,19 @@ public class OrderDetail {
     private Integer quantity;
 
     @Column(nullable = false)
-    private Integer unitPrice;
+    private Double unitPrice;
 
     // Many-to-one với Order, Product, và Coupon
 
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = false, name = "orderId")
     private Orders order;  // Mối quan hệ với bảng Order
 
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(nullable = false, name = "productId")
     private Product product;  // Mối quan hệ với bảng Product
-
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    private Coupon coupon;  // Mối quan hệ với bảng Coupon
 
     private String size;
     private String color;
+
 }

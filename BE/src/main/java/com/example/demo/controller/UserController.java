@@ -1,6 +1,8 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Account;
 import com.example.demo.model.User;
+import com.example.demo.repo.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +21,9 @@ public class UserController {
     private UserService userService;
 
     @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
     private JwtUtil jwtUtil;    
 
     @PostMapping("/login")
@@ -32,11 +37,12 @@ public class UserController {
         if (user.isPresent()) {
             String token = jwtUtil.generateToken(username);
             String refreshToken = jwtUtil.generateRefreshToken(username);
-
+            Account account = accountRepository.findByUserId(user.get().getId());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             response.put("refreshToken", refreshToken);
             response.put("username", user.get().getUsername());
+            response.put("role",account.getRole().getRoleName());
             response.put("fullName", user.get().getFullName());
 
             return ResponseEntity.ok(response);

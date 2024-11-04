@@ -48,4 +48,5 @@ public class Coupon {
 
     @Column(nullable = false)
     private Integer couponType;//0-phần trăm, 1-sô
+
 }
