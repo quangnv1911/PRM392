@@ -20,6 +20,6 @@ public class Role {
     private String roleName;
 
     public String getRoleName() {
-        return null;
+        return roleName;
     }
 }
