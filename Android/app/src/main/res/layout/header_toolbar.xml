@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:orientation="horizontal"
+    android:background="@drawable/background_toolbar_gradient"
+    android:padding="8dp"
+    android:gravity="center_vertical">
+
+    <!-- Nút Menu -->
+    <TextView
+        android:id="@+id/btn_header_toolbar_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/admin"
+        android:drawableStart="@drawable/ic_home"
+        android:drawableTint="#FFFFFF"
+        android:textColor="#FFFFFF"
+        android:drawablePadding="8dp"
+        android:textSize="18sp"/>
+
+    <!-- Khoảng trống để đẩy các icon về bên phải -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+    <!-- Icon Thông báo -->
+    <ImageView
+        android:id="@+id/icon_header_toolbar_notification"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_notify"
+        android:tint="#FFFFFF"
+        android:layout_marginEnd="16dp"
+        tools:ignore="UseAppTint" />
+
+    <!-- Icon Cài đặt -->
+    <ImageView
+        android:id="@+id/icon_header_toolbar_settings"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_setting"
+        android:tint="#FFFFFF"
+        android:padding="4dp"
+        tools:ignore="UseAppTint" />
+</LinearLayout>

@@ -44,7 +44,7 @@ public class UserController {
             response.put("username", user.get().getUsername());
             response.put("role",account.getRole().getRoleName());
             response.put("fullName", user.get().getFullName());
-
+            response.put("userId", user.get().getId().toString());
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(401).body(null);

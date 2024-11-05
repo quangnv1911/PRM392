@@ -182,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
                                         InMemoryStorage.save("token", token);
                                         InMemoryStorage.save("refreshToken", refreshToken);
                                         InMemoryStorage.save("username", username);
+                                        InMemoryStorage.save("userId", jsonObject.getString("userId"));
                                         InMemoryStorage.save("role", role);
                                         Intent intent;
                                         if (serverFullName == null || serverFullName.isEmpty()) {
@@ -189,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
                                             if (role.equals("Admin")) {
-                                                intent = new Intent(MainActivity.this, ManageProductActivity.class);
+                                                intent = new Intent(MainActivity.this, DashboardActivity.class);
                                             } else {
                                                 intent = new Intent(MainActivity.this, HomePageActivity.class);
                                             }
@@ -258,18 +259,19 @@ public class MainActivity extends AppCompatActivity {
                                         InMemoryStorage.save("refreshToken", refreshToken);
                                         InMemoryStorage.save("username", username);
                                         InMemoryStorage.save("role", role);
-
+                                        InMemoryStorage.save("userId", jsonObject.getString("userId"));
                                         Intent intent;
                                         if (serverFullName.equals("null") || serverFullName.isEmpty()) {
                                             intent = new Intent(MainActivity.this, RegisterUserActivity.class);
                                         } else {
                                             InMemoryStorage.save("fullName", serverFullName);
                                             if (role.equals("Admin")) {
-                                                intent = new Intent(MainActivity.this, ManageProductActivity.class);
+                                                intent = new Intent(MainActivity.this, DashboardActivity.class);
                                             } else {
                                                 intent = new Intent(MainActivity.this, HomePageActivity.class);
                                             }
                                         }
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                         startActivity(intent);
                                         finish();
                                     } catch (JSONException e) {
