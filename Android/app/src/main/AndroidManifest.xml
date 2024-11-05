@@ -48,6 +48,12 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".OrdersActivity"
+            android:exported="false"></activity>
+        <activity
+            android:name=".ChatListActivity"
+            android:exported="false"></activity>
+        <activity
             android:name=".CouponListActivity"
             android:exported="false"></activity>
         <activity

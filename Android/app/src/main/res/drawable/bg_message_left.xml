@@ -1,5 +1,5 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#FFFFFF"/> <!-- Màu nền cho tin nhắn bên trái, có thể tùy chỉnh -->
+    <solid android:color="#E0E0E0"/> <!-- Màu nền cho tin nhắn bên trái, có thể tùy chỉnh -->
     <corners android:radius="16dp"/> <!-- Độ bo tròn góc, tương tự bên phải -->
     <padding
         android:left="12dp"

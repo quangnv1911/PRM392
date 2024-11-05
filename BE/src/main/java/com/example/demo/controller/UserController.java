@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.Dtos.Response.UserResponseDTO;
 import com.example.demo.model.Account;
 import com.example.demo.model.User;
 import com.example.demo.repo.AccountRepository;
@@ -7,9 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.example.demo.jwt.JwtUtil;
 import com.example.demo.service.UserService;
@@ -24,7 +24,7 @@ public class UserController {
     private AccountRepository accountRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;    
+    private JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
@@ -42,7 +42,7 @@ public class UserController {
             response.put("token", token);
             response.put("refreshToken", refreshToken);
             response.put("username", user.get().getUsername());
-            response.put("role",account.getRole().getRoleName());
+            response.put("role", account.getRole().getRoleName());
             response.put("fullName", user.get().getFullName());
             response.put("userId", user.get().getId().toString());
             return ResponseEntity.ok(response);
@@ -78,6 +78,26 @@ public class UserController {
             return ResponseEntity.ok("Check your email to reset password");
         } else {
             return ResponseEntity.status(404).body("Failed to reset password");
+        }
+    }
+
+    @GetMapping("users")
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+
+        var users = accountRepository.findAll();
+        List<UserResponseDTO> userResponseDTOs = users.stream()
+                .map(user -> new UserResponseDTO(
+                        user.getUser().getId(),
+                        user.getUser().getUsername(),
+                        user.getUser().getFullName(),
+                        user.getImage() // Giả sử User có trường image
+                ))
+                .collect(Collectors.toList());
+
+        if (!userResponseDTOs.isEmpty()) {
+            return ResponseEntity.ok(userResponseDTOs);
+        } else {
+            return ResponseEntity.status(404).body(Collections.emptyList());
         }
     }
 }

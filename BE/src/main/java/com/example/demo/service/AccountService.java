@@ -41,11 +41,11 @@ public class AccountService {
         }
         return null; // or throw an exception if user/account not found
 
+
+    public Account updateAccountDetails(Account account, String fullName, String phone, String address) {
+        account.setFullname(fullName);
+        account.setPhone(phone);
+        account.setAddress(address);
+        return accountRepository.save(account);
     }
-        public Account updateAccountDetails (Account account, String fullName, String phone, String address){
-            account.setFullname(fullName);
-            account.setPhone(phone);
-            account.setAddress(address);
-            return accountRepository.save(account);
-        }
 }
