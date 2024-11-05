@@ -31,9 +31,13 @@ import com.example.pmg302_project.model.Account;
 import com.example.pmg302_project.model.Product;
 import com.example.pmg302_project.repository.FavoriteRepository;
 import com.example.pmg302_project.service.FavoriteService;
+import com.example.pmg302_project.service.ProductService;
+import com.example.pmg302_project.util.ApiResponse;
+import com.example.pmg302_project.util.RetrofitClientInstance;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashSet;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,8 +50,10 @@ import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+
 
 public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -69,9 +75,11 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.favoriteProductIds = new HashSet<>();
         this.activity = activity; // Initialize this field
     }
+
     public void setFavoriteService(FavoriteService favoriteService) {
         this.favoriteService = favoriteService;
     }
+
     @Override
     public int getItemViewType(int position) {
         return isCart ? R.layout.item_cart : R.layout.item_product;
@@ -188,6 +196,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             });
         }
     }
+
     public void getAccountByUsername(String username, AccountIdCallback callback) {
         if (favoriteService == null) {
             Log.e("ProductAdapter", "FavoriteService is null!");
@@ -212,6 +221,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         });
     }
+
     // Callback interface for accountId retrieval
     public interface AccountIdCallback {
         void onAccountIdRetrieved(int accountId);
@@ -226,42 +236,34 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void onAddToCartClick(Product product, int quantity, String size, String color);
     }
 
-    // Add this method to fetch sizes and colors from the API
-private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner colorSpinner) {
-    String url = "http://"+ip+":8081/api/product/sizes-colors?productId=" + productId;
+    private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner colorSpinner) {
+        Log.d("fetchSizesAndColors", "Fetching sizes and colors for productId: " + productId);
+        ProductService productService = RetrofitClientInstance.getProductService();
+        Call<ApiResponse> call = productService.getSizesAndColors(productId);
 
-    Request request = new Request.Builder()
-            .url(url)
-            .build();
-
-    client.newCall(request).enqueue(new okhttp3.Callback() {
-
-        @Override
-        public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
-            e.printStackTrace();
-        }
-
-        @Override
-        public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
-            if (response.isSuccessful()) {
-                String responseData = response.body().toString();
-                try {
-                    JSONObject jsonObject = new JSONObject(responseData);
-                    JSONArray sizesArray = jsonObject.getJSONArray("sizes");
-                    JSONArray colorsArray = jsonObject.getJSONArray("colors");
-
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                Log.d("fetchSizesAndColors", "onResponse called");
+                if (response.isSuccessful() && response.body() != null) {
                     List<String> sizes = new ArrayList<>();
                     List<String> colors = new ArrayList<>();
 
-                    for (int i = 0; i < sizesArray.length(); i++) {
-                        sizes.add(sizesArray.getString(i));
+                    for (String size : response.body().getSizes()) {
+                        sizes.add("size " + size); // Prepend "size"
                     }
 
-                    for (int i = 0; i < colorsArray.length(); i++) {
-                        colors.add(colorsArray.getString(i));
+                    for (String color : response.body().getColors()) {
+                        colors.add("màu " + color); // Prepend "màu"
                     }
+                    Log.d("fetchSizesAndColors", sizes.toString());
+                    Log.d("fetchSizesAndColors", colors.toString());
 
                     activity.runOnUiThread(() -> {
+                        Log.d("fetchSizesAndColors", "Updating UI with sizes and colors");
+                        Log.d("fetchSizesAndColors", "Context: " + context);
+                        Log.d("fetchSizesAndColors", "Activity: " + activity);
+
                         ArrayAdapter<String> sizeAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, sizes);
                         sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         sizeSpinner.setAdapter(sizeAdapter);
@@ -270,14 +272,19 @@ private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner col
                         colorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         colorSpinner.setAdapter(colorAdapter);
                     });
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                } else {
+                    Log.d("fetchSizesAndColors", "Response is not successful or body is null");
                 }
             }
-        }
-    });
-}
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                Log.e("fetchSizesAndColors", "onFailure called", t);
+            }
+        });
+    }
+
+
     private void showAddToCartDialog(Product product) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_to_cart, null);
