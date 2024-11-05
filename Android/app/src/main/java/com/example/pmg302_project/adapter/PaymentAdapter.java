@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pmg302_project.R;
 import com.example.pmg302_project.model.Account;
+import com.example.pmg302_project.model.OrderDetail;
 import com.example.pmg302_project.model.Product;
 import com.squareup.picasso.Picasso;
 

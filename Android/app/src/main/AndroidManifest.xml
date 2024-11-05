@@ -88,7 +88,13 @@
             android:exported="true" />
         <activity
             android:name=".SearchResultsActivity"
-            android:exported="true" />
+            android:exported="true"></activity>
+        <activity
+            android:name=".OrderHistoryActivity"
+            android:exported="true"></activity>
+        <activity
+            android:name=".OrderDetailActivity"
+            android:exported="true"></activity>
     </application>
 
 </manifest>

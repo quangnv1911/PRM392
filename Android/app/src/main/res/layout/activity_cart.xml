@@ -1,10 +1,9 @@
-<!-- activity_cart.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_homepage"
         android:layout_width="match_parent"
@@ -14,6 +13,7 @@
         app:titleTextColor="@android:color/white"
         app:menu="@menu/toolbar_menu"/>
 
+
     <TextView
         android:id="@+id/emptyCartMessage"
         android:layout_width="wrap_content"
@@ -22,12 +22,15 @@
         android:text="@string/your_cart_is_empty"
         android:visibility="gone"
         android:textSize="18sp"
+        android:padding="10dp"
         android:layout_gravity="center" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:padding="10dp"
+        android:fillViewport="true"> <!-- Ensures ScrollView takes the remaining space -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,7 +40,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerViewCart"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="wrap_content" /> <!-- Keep height as wrap_content for proper scrolling -->
         </LinearLayout>
     </ScrollView>
 
@@ -48,6 +51,7 @@
         android:textColor="@color/facebook_blue"
         android:text="@string/total_quantity_0"
         android:textSize="16sp"
+        android:padding="10dp"
         android:layout_gravity="end"
         android:paddingTop="8dp" />
 
@@ -58,19 +62,32 @@
         android:textColor="@color/facebook_blue"
         android:text="@string/total_price_0_00"
         android:textSize="16sp"
+        android:padding="10dp"
         android:layout_gravity="end"
         android:paddingTop="4dp" />
 
     <TextView
-        android:text="@string/dot"
-        android:layout_gravity="end"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="@string/dot"
+        android:layout_gravity="end" />
 
     <Button
         android:id="@+id/checkoutButton"
         android:layout_gravity="end"
+        android:layout_marginRight="10dp"
         android:text="@string/checkout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" /> <!-- Added margin for spacing -->
+
+    <!-- Bottom Navigation View -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_gravity="bottom"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 </LinearLayout>

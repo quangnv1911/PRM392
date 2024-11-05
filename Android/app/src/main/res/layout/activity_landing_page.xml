@@ -1,140 +1,154 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:divider="?android:attr/dividerHorizontal"
-        android:showDividers="middle">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="10dp"
+        android:paddingBottom="15dp">
 
-        <!-- Store Information Section -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/storeInfoCard1"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:padding="16dp">
-            <LinearLayout
+            android:orientation="vertical"
+            android:paddingBottom="10dp"
+            android:divider="?android:attr/dividerHorizontal"
+            android:showDividers="middle">
+
+            <!-- Store Information Section -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/storeInfoCard1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
+                android:layout_marginBottom="16dp"
+                android:padding="16dp">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Thông tin cửa hàng"
-                    android:textSize="20sp"
-                    android:textColor="@color/facebook_blue"
-                    android:textStyle="bold"
-                    android:paddingBottom="8dp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Shop House - nơi bạn tìm thấy phong cách của riêng mình! Chúng tôi mang đến cho bạn những bộ sưu tập thời trang mới nhất, từ trang phục dạo phố năng động đến những bộ đồ công sở thanh lịch. Tại Shop House, chất lượng và sự đa dạng luôn được đặt lên hàng đầu, giúp bạn tự tin thể hiện cá tính mỗi ngày. Hãy đến với Shop House để khám phá xu hướng thời trang mới và trải nghiệm dịch vụ tận tâm. Shop House - Nơi phong cách trở thành phong thái!"
-                    android:paddingBottom="8dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Thông tin cửa hàng"
+                        android:textSize="20sp"
+                        android:textColor="@color/facebook_blue"
+                        android:textStyle="bold"
+                        android:paddingBottom="8dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Shop House - nơi bạn tìm thấy phong cách của riêng mình! Chúng tôi mang đến cho bạn những bộ sưu tập thời trang mới nhất, từ trang phục dạo phố năng động đến những bộ đồ công sở thanh lịch. Tại Shop House, chất lượng và sự đa dạng luôn được đặt lên hàng đầu, giúp bạn tự tin thể hiện cá tính mỗi ngày. Hãy đến với Shop House để khám phá xu hướng thời trang mới và trải nghiệm dịch vụ tận tâm. Shop House - Nơi phong cách trở thành phong thái!"
+                        android:paddingBottom="8dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        <!-- Address Section -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/addressCard1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:padding="16dp">
-            <LinearLayout
+            <!-- Address Section -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/addressCard1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
+                android:layout_marginBottom="16dp"
+                android:padding="16dp">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Địa chỉ"
-                    android:textColor="@color/facebook_blue"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:paddingBottom="8dp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="FPT University, Hòa Lạc, Hà Nội"
-                    android:paddingBottom="8dp" />
-                <org.osmdroid.views.MapView
-                    android:id="@+id/mapView1"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:orientation="vertical">
 
-        <!-- Contact Section -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/contactCard1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
-            <LinearLayout
+                    <org.osmdroid.views.MapView
+                        android:id="@+id/mapView1"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Địa chỉ"
+                        android:textColor="@color/facebook_blue"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:paddingBottom="8dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="FPT University, Hòa Lạc, Hà Nội"
+                        android:paddingBottom="8dp" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Contact Section -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/contactCard1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
+                android:padding="16dp">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Liên hệ"
-                    android:textColor="@color/facebook_blue"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:paddingBottom="8dp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Điện thoại: +123 456 7890"
-                    android:paddingBottom="8dp" />
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Email: info@store.com"
-                    android:paddingBottom="8dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Liên hệ"
+                        android:textColor="@color/facebook_blue"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:paddingBottom="8dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Điện thoại: +123 456 7890"
+                        android:paddingBottom="8dp" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Email: info@store.com"
+                        android:paddingBottom="8dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-        </androidx.cardview.widget.CardView>
-
-        <!-- Newsletter Section -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/newsletterCard"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:padding="16dp">
-            <LinearLayout
+            <!-- Newsletter Section -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/newsletterCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <TextView
+                android:layout_marginBottom="16dp"
+                android:padding="16dp">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Đăng ký nhận bản tin"
-                    android:textSize="20sp"
-                    android:textColor="@color/facebook_blue"
-                    android:textStyle="bold"
-                    android:paddingBottom="8dp" />
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Nhập email của bạn" />
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Đăng ký" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Đăng ký nhận bản tin"
+                        android:textSize="20sp"
+                        android:textColor="@color/facebook_blue"
+                        android:textStyle="bold"
+                        android:paddingBottom="8dp" />
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nhập email của bạn" />
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Đăng ký" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </ScrollView>
 
-
-    </LinearLayout>
-</ScrollView>
+    <!-- Bottom Navigation View -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_gravity="bottom"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+</LinearLayout>

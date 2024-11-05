@@ -17,6 +17,8 @@ import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.adapter.ProductAdapter;
 import com.example.pmg302_project.model.Product;
+import com.example.pmg302_project.service.FavoriteService;
+import com.example.pmg302_project.util.RetrofitClientInstance;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +42,7 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
     private List<Product> cartList = new ArrayList<>();
     private RecyclerView recyclerView;
     String ip = COMMONSTRING.ip;
+    private FavoriteService favoriteService;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,10 +59,11 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
 
         recyclerView = findViewById(R.id.recyclerViewProducts);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        // Khởi tạo danh sách sản phẩm (trống) và adapter trước khi fetch data
-        productAdapter = new ProductAdapter(this, this, productList, this, false);
-        recyclerView.setAdapter(productAdapter);
+        favoriteService = RetrofitClientInstance.getFavoriteService();
+        // Initialize the ProductAdapter with the favoriteService
+        productAdapter = new ProductAdapter(this, productList, this, false);
+        productAdapter.setFavoriteService(favoriteService); // Set the favorite service
+        recyclerView.setAdapter(productAdapter); // Set the adapter
 
         fetchProduct(productType);
     }
