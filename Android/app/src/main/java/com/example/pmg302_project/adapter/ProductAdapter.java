@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +20,23 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pmg302_project.CartActivity;
+import com.example.pmg302_project.InMemoryStorage;
 import com.example.pmg302_project.ProductDetailActivity;
 import com.example.pmg302_project.R;
 import com.example.pmg302_project.Utils.CartPreferences;
+import com.example.pmg302_project.model.Account;
 import com.example.pmg302_project.model.Product;
+import com.example.pmg302_project.repository.FavoriteRepository;
+import com.example.pmg302_project.service.FavoriteService;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -36,6 +45,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private OnAddToCartClickListener onAddToCartClickListener;
     private boolean isCart;
     private Set<Integer> favoriteProductIds;
+    private FavoriteService favoriteService;
 
     public ProductAdapter(Context context, List<Product> productList, OnAddToCartClickListener onAddToCartClickListener, boolean isCart) {
         this.context = context;
@@ -44,7 +54,9 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.isCart = isCart;
         this.favoriteProductIds = new HashSet<>();
     }
-
+    public void setFavoriteService(FavoriteService favoriteService) {
+        this.favoriteService = favoriteService;
+    }
     @Override
     public int getItemViewType(int position) {
         return isCart ? R.layout.item_cart : R.layout.item_product;
@@ -104,13 +116,92 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 context.startActivity(intent);
             });
 
-        int productId = product.getId();
-        productHolder.imgFavorite.setImageResource(
-                favoriteProductIds.contains(productId) ?
-                        R.drawable.ic_heart_filled : R.drawable.ic_heart
-        ); // Change icon based on favorite status
+            int productId = product.getId();
+            productHolder.imgFavorite.setImageResource(
+                    favoriteProductIds.contains(productId) ?
+                            R.drawable.ic_heart_filled : R.drawable.ic_heart
+            );
+
+            productHolder.imgFavorite.setOnClickListener(view -> {
+                String username = InMemoryStorage.get("username");
+                if (favoriteProductIds.contains(productId)) {
+                    // Remove favorite after retrieving accountId
+                    getAccountByUsername("hieunh", accountId -> {
+                        // Use retrieved accountId to remove favorite
+                        favoriteService.removeFavorite(accountId, productId)
+                                .enqueue(new Callback<Void>() {
+                                    @Override
+                                    public void onResponse(Call<Void> call, Response<Void> response) {
+                                        if (response.isSuccessful()) {
+                                            favoriteProductIds.remove(productId);
+                                            productHolder.imgFavorite.setImageResource(R.drawable.ic_heart);
+                                            Log.d("ProductAdapter", "Favorite removed successfully.");
+                                        } else {
+                                            Log.d("ProductAdapter", "Failed to remove favorite.");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Void> call, Throwable t) {
+                                        Log.e("ProductAdapter", "Error removing favorite: " + t.getMessage());
+                                    }
+                                });
+                    });
+                } else {
+                    // Add favorite after retrieving accountId
+                    getAccountByUsername("hieunh", accountId -> {
+                        favoriteService.addFavorite(accountId, productId)
+                                .enqueue(new Callback<Void>() {
+                                    @Override
+                                    public void onResponse(Call<Void> call, Response<Void> response) {
+                                        if (response.isSuccessful()) {
+                                            favoriteProductIds.add(productId);
+                                            productHolder.imgFavorite.setImageResource(R.drawable.ic_heart_filled);
+                                            Log.d("ProductAdapter", "Favorite added successfully.");
+                                        } else {
+                                            Log.d("ProductAdapter", "Failed to add favorite.");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Void> call, Throwable t) {
+                                        Log.e("ProductAdapter", "Error adding favorite: " + t.getMessage());
+                                    }
+                                });
+                    });
+                }
+            });
+        }
     }
+    public void getAccountByUsername(String username, AccountIdCallback callback) {
+        if (favoriteService == null) {
+            Log.e("ProductAdapter", "FavoriteService is null!");
+            return; // Exit if favoriteService is null
+        }
+
+        Call<Account> call = favoriteService.getAccountByUserName(username);
+        call.enqueue(new Callback<Account>() {
+            @Override
+            public void onResponse(Call<Account> call, Response<Account> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Account account = response.body();
+                    callback.onAccountIdRetrieved(account.getId());
+                } else {
+                    Log.d("ProductAdapter", "Failed to retrieve account.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Account> call, Throwable t) {
+                Log.e("ProductAdapter", "Error fetching account: " + t.getMessage());
+            }
+        });
     }
+    // Callback interface for accountId retrieval
+    public interface AccountIdCallback {
+        void onAccountIdRetrieved(int accountId);
+    }
+
     @Override
     public int getItemCount() {
         return productList.size();

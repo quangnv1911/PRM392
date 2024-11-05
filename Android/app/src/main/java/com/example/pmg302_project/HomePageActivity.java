@@ -3,6 +3,7 @@ package com.example.pmg302_project;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -18,8 +20,12 @@ import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.adapter.ProductAdapter;
 import com.example.pmg302_project.model.Product;
+import com.example.pmg302_project.service.ProductService;
+import com.example.pmg302_project.util.RetrofitClientInstance;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.FirebaseApp;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import androidx.annotation.NonNull;
@@ -69,6 +75,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
 
+
         viewFlipper = findViewById(R.id.viewFlipper);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -88,6 +95,32 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             }
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
+        });
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            Intent intent;
+            if (itemId == R.id.nav_home) {
+                // Handle home action
+                intent = new Intent(this, HomePageActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_order) {
+                // Handle order action
+                intent = new Intent(this, CartActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_map) {
+                // Handle map action
+                intent = new Intent(this, LandingPageActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            }
+            return false;
         });
 
         fetchImageUrls();
@@ -198,6 +231,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         startActivity(intent);
     }
 
+
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
@@ -210,9 +244,52 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             drawerLayout.openDrawer(GravityCompat.START);
             return true;
         }
+        if (item.getItemId() == R.id.action_search) {
+            showSearchDialog();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
+    private void showSearchDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Search Product");
 
+        final EditText input = new EditText(this);
+        builder.setView(input);
+
+        builder.setPositiveButton("Search", (dialog, which) -> {
+            String productName = input.getText().toString();
+            searchProduct(productName);
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
+    private void searchProduct(String productName) {
+        ProductService productService = RetrofitClientInstance.getProductService();
+        retrofit2.Call<List<Product>> call = productService.searchProducts(productName);
+
+        call.enqueue(new retrofit2.Callback<List<Product>>() {
+            @Override
+            public void onResponse(retrofit2.Call<List<Product>> call, retrofit2.Response<List<Product>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Product> products = response.body();
+                    // Handle the product list (e.g., pass it to ListProductActivity)
+                    Intent intent = new Intent(HomePageActivity.this, ListProductActivity.class);
+                    intent.putExtra("PRODUCT_LIST", new Gson().toJson(products));
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(HomePageActivity.this, "No products found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<List<Product>> call, Throwable t) {
+                Toast.makeText(HomePageActivity.this, "Search failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d("Search failed", t.getMessage());
+
+            }
+        });
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
