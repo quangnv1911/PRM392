@@ -46,11 +46,8 @@ import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.Response;
 
 public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -237,16 +234,17 @@ private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner col
             .url(url)
             .build();
 
-    client.newCall(request).enqueue(new Callback() {
+    client.newCall(request).enqueue(new okhttp3.Callback() {
+
         @Override
-        public void onFailure(Call call, IOException e) {
+        public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
             e.printStackTrace();
         }
 
         @Override
-        public void onResponse(Call call, Response response) throws IOException {
+        public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
             if (response.isSuccessful()) {
-                String responseData = response.body().string();
+                String responseData = response.body().toString();
                 try {
                     JSONObject jsonObject = new JSONObject(responseData);
                     JSONArray sizesArray = jsonObject.getJSONArray("sizes");

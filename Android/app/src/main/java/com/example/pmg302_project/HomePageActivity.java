@@ -416,35 +416,6 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         return true;
     }
 
-    private void searchProduct(String query) {
-        String url = "http://" + ip + ":8081/api/searchProduct?search=" + query;
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-                runOnUiThread(() -> Toast.makeText(HomePageActivity.this, "Search failed", Toast.LENGTH_SHORT).show());
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    String responseData = response.body().string();
-                    runOnUiThread(() -> {
-                        Intent intent = new Intent(HomePageActivity.this, SearchResultsActivity.class);
-                        intent.putExtra("searchResults", responseData);
-                        startActivity(intent);
-                    });
-                } else {
-                    runOnUiThread(() -> Toast.makeText(HomePageActivity.this, "Search failed", Toast.LENGTH_SHORT).show());
-                }
-            }
-        });
-    }
 
     private void fetchImageUrls() {
         String url = "http://" + ip + ":8081/api/flipper";

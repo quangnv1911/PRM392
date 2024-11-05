@@ -20,11 +20,7 @@
             android:name=".DashboardActivity"
             android:exported="true"
             android:theme="@style/Theme.Pmg302project">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity
@@ -45,11 +41,21 @@
         <activity
             android:name=".HomePageActivity"
             android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
-        <activity android:name=".CouponListActivity" android:exported="false"></activity>
-        <activity android:name=".CouponFormActivity" android:exported="false"></activity>
-        <activity android:name=".CouponDetailActivity" android:exported="false"></activity>
+        <activity
+            android:name=".CouponListActivity"
+            android:exported="false"></activity>
+        <activity
+            android:name=".CouponFormActivity"
+            android:exported="false"></activity>
+        <activity
+            android:name=".CouponDetailActivity"
+            android:exported="false"></activity>
         <activity
             android:name=".MainActivity"
             android:exported="true" />
