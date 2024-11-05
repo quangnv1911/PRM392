@@ -1,15 +1,16 @@
 package com.example.pmg302_project.model;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 public class Orders {
 
     private Integer orderId;
-    private LocalDate orderDate;
+    private Date orderDate;
     private Integer totalQuantity;
-    private Float totalPrice;
-    private String status;
-
+    private Double totalPrice;
+    private Integer status;
+    private Integer accountId;
+    private Coupon coupon;
     public Orders() {
     }
 
@@ -21,11 +22,11 @@ public class Orders {
         this.orderId = orderId;
     }
 
-    public LocalDate getOrderDate() {
+    public Date getOrderDate() {
         return orderDate;
     }
 
-    public void setOrderDate(LocalDate orderDate) {
+    public void setOrderDate(Date orderDate) {
         this.orderDate = orderDate;
     }
 
@@ -37,19 +38,35 @@ public class Orders {
         this.totalQuantity = totalQuantity;
     }
 
-    public Float getTotalPrice() {
+    public Double getTotalPrice() {
         return totalPrice;
     }
 
-    public void setTotalPrice(Float totalPrice) {
+    public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Integer accountId) {
+        this.accountId = accountId;
+    }
+
+    public Coupon getCoupon() {
+        return coupon;
+    }
+
+    public void setCoupon(Coupon coupon) {
+        this.coupon = coupon;
     }
 }

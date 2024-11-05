@@ -60,12 +60,10 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
         recyclerView = findViewById(R.id.recyclerViewProducts);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         favoriteService = RetrofitClientInstance.getFavoriteService();
-
         // Initialize the ProductAdapter with the favoriteService
         productAdapter = new ProductAdapter(this, productList, this, false);
         productAdapter.setFavoriteService(favoriteService); // Set the favorite service
         recyclerView.setAdapter(productAdapter); // Set the adapter
-
 
         fetchProduct(productType);
     }

@@ -1,6 +1,7 @@
 package com.example.pmg302_project.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -23,6 +25,7 @@ import com.example.pmg302_project.CartActivity;
 import com.example.pmg302_project.InMemoryStorage;
 import com.example.pmg302_project.ProductDetailActivity;
 import com.example.pmg302_project.R;
+import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.model.Account;
 import com.example.pmg302_project.model.Product;
@@ -31,12 +34,23 @@ import com.example.pmg302_project.service.FavoriteService;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashSet;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -46,13 +60,17 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private boolean isCart;
     private Set<Integer> favoriteProductIds;
     private FavoriteService favoriteService;
+    private OkHttpClient client = new OkHttpClient();
+    private Activity activity; // Add this field
+    String ip = COMMONSTRING.ip;
 
-    public ProductAdapter(Context context, List<Product> productList, OnAddToCartClickListener onAddToCartClickListener, boolean isCart) {
+    public ProductAdapter(Activity activity, Context context, List<Product> productList, OnAddToCartClickListener onAddToCartClickListener, boolean isCart) {
         this.context = context;
         this.productList = productList;
         this.onAddToCartClickListener = onAddToCartClickListener;
         this.isCart = isCart;
         this.favoriteProductIds = new HashSet<>();
+        this.activity = activity; // Initialize this field
     }
     public void setFavoriteService(FavoriteService favoriteService) {
         this.favoriteService = favoriteService;
@@ -211,6 +229,57 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void onAddToCartClick(Product product, int quantity, String size, String color);
     }
 
+    // Add this method to fetch sizes and colors from the API
+private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner colorSpinner) {
+    String url = "http://"+ip+":8081/api/product/sizes-colors?productId=" + productId;
+
+    Request request = new Request.Builder()
+            .url(url)
+            .build();
+
+    client.newCall(request).enqueue(new Callback() {
+        @Override
+        public void onFailure(Call call, IOException e) {
+            e.printStackTrace();
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            if (response.isSuccessful()) {
+                String responseData = response.body().string();
+                try {
+                    JSONObject jsonObject = new JSONObject(responseData);
+                    JSONArray sizesArray = jsonObject.getJSONArray("sizes");
+                    JSONArray colorsArray = jsonObject.getJSONArray("colors");
+
+                    List<String> sizes = new ArrayList<>();
+                    List<String> colors = new ArrayList<>();
+
+                    for (int i = 0; i < sizesArray.length(); i++) {
+                        sizes.add(sizesArray.getString(i));
+                    }
+
+                    for (int i = 0; i < colorsArray.length(); i++) {
+                        colors.add(colorsArray.getString(i));
+                    }
+
+                    activity.runOnUiThread(() -> {
+                        ArrayAdapter<String> sizeAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, sizes);
+                        sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        sizeSpinner.setAdapter(sizeAdapter);
+
+                        ArrayAdapter<String> colorAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, colors);
+                        colorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        colorSpinner.setAdapter(colorAdapter);
+                    });
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    });
+}
     private void showAddToCartDialog(Product product) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_to_cart, null);
@@ -226,6 +295,9 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         Picasso.get().load(product.getImageLink()).into(productImage);
         productName.setText(product.getName());
+
+        fetchSizesAndColors(product.getId(), sizeSpinner, colorSpinner);
+
 
         // Add TextWatcher to quantityEditText
         quantityEditText.addTextChangedListener(new TextWatcher() {

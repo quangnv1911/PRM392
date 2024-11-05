@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_homepage"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/facebook_blue"
+            app:title="Lịch sử mua hàng"
+            app:titleTextColor="@android:color/white"
+            app:menu="@menu/toolbar_menu"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewOrderHis"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Product Name -->
+
+        <!-- Product Image Flipper -->
+
+        <!-- Small Images Horizontal Scroll -->
+
+        <!-- Product Information: Price, Rating, Purchase Count, Description -->
+
+        <!-- Like and Add to Cart Buttons -->
+
+
+        <!-- Reviews Section -->
+
+        <!-- Review Input -->
+
+    </LinearLayout>
+</ScrollView>
