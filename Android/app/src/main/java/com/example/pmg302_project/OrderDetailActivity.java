@@ -70,6 +70,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar_order_detail_his);
         setSupportActionBar(toolbar);
         drawerLayout = findViewById(R.id.draw_order_detail_his);
+
         navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(item -> {
             CharSequence title = item.getTitle();
@@ -93,6 +94,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                 Intent intent2 = new Intent(OrderDetailActivity.this, OrderHistoryActivity.class);
                 startActivity(intent2);
             }
+            drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         });
 

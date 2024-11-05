@@ -94,6 +94,7 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
                 Intent intent2 = new Intent(OrderHistoryActivity.this, OrderHistoryActivity.class);
                 startActivity(intent2);
             }
+            drawerLayout.closeDrawer(GravityCompat.START);
             return true;
         });
 
