@@ -36,7 +36,6 @@ android {
 }
 
 dependencies {
-    implementation(files("libs/zpdk-release-v3.1.aar"))
     implementation("commons-codec:commons-codec:1.14")
 
     implementation(libs.appcompat)
@@ -49,6 +48,11 @@ dependencies {
     implementation(libs.navigation.fragment)
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(fileTree(mapOf(
+        "dir" to "C:\\PRM392\\PRM392\\Android\\libs",
+        "include" to listOf("*.aar", "*.jar"),
+        "exclude" to listOf("")
+    )))
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
