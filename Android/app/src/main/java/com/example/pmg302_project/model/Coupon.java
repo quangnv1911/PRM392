@@ -1,8 +1,9 @@
 package com.example.pmg302_project.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Coupon {
+public class Coupon implements Serializable {
     private Integer id;
     private String couponCode;//mã của coupon
     private Integer discountValue;//value của coupon
@@ -16,7 +17,7 @@ public class Coupon {
     private Integer createdBy;//tạo bởi
     private Integer couponType;//0-phần trăm, 1-sô
 
-    private Coupon(){
+    public Coupon(){
 
     }
 
@@ -33,6 +34,7 @@ public class Coupon {
         this.isActive = isActive;
         this.couponType = couponType;
     }
+
 
     public Integer getId() {
         return id;

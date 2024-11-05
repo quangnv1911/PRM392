@@ -1,14 +1,20 @@
 package com.example.pmg302_project.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Product {
+    @SerializedName("productId")
     private int id;
+    @SerializedName("productName")
     private String name;
     private String description;
     private double price;
+    @SerializedName("imageLink")
     private String imageLink;
     private String type;
     private int purchaseCount;
     private double rate;
+    @SerializedName("stockQuantity")
     private int quantity; // Add this field
     private String size;
     private String color; // Add this field

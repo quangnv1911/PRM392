@@ -12,7 +12,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class ManageProductActivity extends AppCompatActivity {
 
-    private FloatingActionButton btnAddProduct;
     private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
@@ -21,7 +20,7 @@ public class ManageProductActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage_activity);
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
 
-        btnAddProduct = findViewById(R.id.btnAddProduct);
+        FloatingActionButton btnAddProduct = findViewById(R.id.btnAddProduct);
 
         // Hiển thị ProductFragment trong fragment_container
         if (savedInstanceState == null) {
