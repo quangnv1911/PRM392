@@ -1,12 +1,14 @@
 // LandingPageActivity.java
 package com.example.pmg302_project;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.components.BuildConfig;
 
 import org.osmdroid.config.Configuration;
@@ -21,7 +23,32 @@ public class LandingPageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing_page);
-
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        bottomNavigationView.setSelectedItemId(R.id.nav_map);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            Intent intent;
+            if (itemId == R.id.nav_home) {
+                // Handle home action
+                intent = new Intent(this, HomePageActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_order) {
+                // Handle order action
+                intent = new Intent(this, CartActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_map) {
+                // Handle map action
+                intent = new Intent(this, LandingPageActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            }
+            return false;
+        });
         // Initialize osmdroid configuration
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
 

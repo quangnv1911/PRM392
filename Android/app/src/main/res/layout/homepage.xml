@@ -178,7 +178,11 @@
                     android:id="@+id/recyclerViewTopProducts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="5dp" />
+                    android:paddingBottom="60dp"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:paddingTop="5dp"
+                    />
 
             </LinearLayout>
         </ScrollView>
@@ -193,6 +197,13 @@
             android:src="@android:drawable/sym_action_chat"
             app:backgroundTint="@color/facebook_blue"
             app:fabSize="normal" />
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNavigationView"
+            android:layout_width="420dp"
+            android:layout_height="65dp"
+            android:layout_alignParentBottom="true"
+            app:menu="@menu/bottom_nav_menu" />
+
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -201,4 +212,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu" />
+
+
 </androidx.drawerlayout.widget.DrawerLayout>
