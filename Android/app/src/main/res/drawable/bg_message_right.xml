@@ -1,0 +1,9 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#E0E0E0"/> <!-- Màu nền tin nhắn, bạn có thể thay đổi màu này -->
+    <corners android:radius="16dp"/> <!-- Độ bo tròn góc, có thể tùy chỉnh -->
+    <padding
+        android:left="12dp"
+        android:top="8dp"
+        android:right="12dp"
+        android:bottom="8dp"/>
+</shape>

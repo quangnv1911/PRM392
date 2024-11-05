@@ -145,6 +145,12 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+    <string name="edit">Edit</string>
+    <string name="coupon_title">Mã giảm giá</string>
+    <string name="coupon_date_end">Ngày hết hạn (dd/MM/yyyy)</string>
+    <string name="save">Lưu</string>
+    <string name="back">Quay về</string>
+    <string name="send">Gửi</string>
 
     <!-- Add other strings as needed -->
 </resources>

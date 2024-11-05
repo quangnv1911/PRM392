@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pmg302_project.ChatActivity;
 import com.example.pmg302_project.CouponListActivity;
 import com.example.pmg302_project.ManageProductActivity;
 import com.example.pmg302_project.R;
@@ -58,7 +59,7 @@ public class MenuFragment extends Fragment {
                     startActivity(new Intent(getContext(), ManageProductActivity.class));
                     break;
                 case 4:
-                    startActivity(new Intent(getContext(), ManageProductActivity.class));
+                    startActivity(new Intent(getContext(), ChatActivity.class));
                     break;
                 // Add more cases if you add more menu items
             }

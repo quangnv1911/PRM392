@@ -48,6 +48,8 @@
 
         </activity>
         <activity android:name=".CouponListActivity" android:exported="false"></activity>
+        <activity android:name=".CouponFormActivity" android:exported="false"></activity>
+        <activity android:name=".CouponDetailActivity" android:exported="false"></activity>
         <activity
             android:name=".MainActivity"
             android:exported="true" />

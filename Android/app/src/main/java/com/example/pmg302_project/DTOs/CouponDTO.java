@@ -1,27 +1,28 @@
-package com.example.pmg302_project.model;
+package com.example.pmg302_project.DTOs;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Date;
 
-public class Coupon implements Serializable {
+public class CouponDTO implements Serializable {
     private Integer id;
     private String couponCode;//mã của coupon
     private Integer discountValue;//value của coupon
     private Integer minOrderValue;//giá tiền nhỏ nhất được áp coupon
     private Integer maxOrderValue;//giá tiền lớn nhất được áp coupon
-    private Date startDate;//ngày bắt đầu sử dụng dc coupon
-    private Date endDate;//ngày hết hạn
+    private LocalDate startDate;//ngày bắt đầu sử dụng dc coupon
+    private LocalDate endDate;//ngày hết hạn
     private Integer usageLimit;//số lượng limit của coupon
     private Integer usageCount;//số lượng người đã dùng
     private Boolean isActive;//có kích hoạt không
     private Integer createdBy;//tạo bởi
     private Integer couponType;//0-phần trăm, 1-sô
 
-    public Coupon(){
+    public CouponDTO(){
 
     }
 
-    public Coupon(Integer id, String couponCode, Integer discountValue, Integer minOrderValue, Integer maxOrderValue, Date startDate, Date endDate, Integer usageLimit, Integer usageCount, Boolean isActive, Integer couponType) {
+    public CouponDTO(Integer id, String couponCode, Integer discountValue, Integer minOrderValue, Integer maxOrderValue, LocalDate startDate, LocalDate endDate, Integer usageLimit, Integer usageCount, Boolean isActive, Integer couponType) {
         this.id = id;
         this.couponCode = couponCode;
         this.discountValue = discountValue;
@@ -76,19 +77,19 @@ public class Coupon implements Serializable {
         this.maxOrderValue = maxOrderValue;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
@@ -132,3 +133,4 @@ public class Coupon implements Serializable {
         this.couponType = couponType;
     }
 }
+
