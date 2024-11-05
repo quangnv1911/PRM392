@@ -1,8 +1,9 @@
 package com.example.pmg302_project.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Orders {
+public class Orders implements Serializable {
 
     private Integer orderId;
     private Date orderDate;

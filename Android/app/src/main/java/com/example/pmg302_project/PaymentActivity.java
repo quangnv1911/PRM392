@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -18,11 +19,13 @@ import com.example.pmg302_project.model.Coupon;
 import com.example.pmg302_project.model.OrderDetail;
 import com.example.pmg302_project.model.Orders;
 import com.example.pmg302_project.model.Product;
+import com.example.pmg302_project.zalopay.Api.CreateOrder;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -63,6 +66,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import vn.zalopay.sdk.Environment;
+import vn.zalopay.sdk.ZaloPayError;
+import vn.zalopay.sdk.ZaloPaySDK;
+import vn.zalopay.sdk.listeners.PayOrderListener;
 
 public class PaymentActivity extends AppCompatActivity {
     private RecyclerView recyclerViewPayment;
@@ -142,6 +149,13 @@ public class PaymentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment);
 
+
+        //zaloPay setup
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        ZaloPaySDK.init(553, Environment.SANDBOX);
+
+
         recyclerViewPayment = findViewById(R.id.recyclerViewPayment);
         recyclerViewPayment.setLayoutManager(new LinearLayoutManager(this));
 
@@ -155,6 +169,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         // Fetch cart data from CartPreferences
         cartList = CartPreferences.loadCart(this);
+
         paymentAdapter = new PaymentAdapter(this, cartList);
         recyclerViewPayment.setAdapter(paymentAdapter);
 
@@ -293,6 +308,7 @@ public class PaymentActivity extends AppCompatActivity {
 
 
     private void createOrder() {
+
         Orders orders=new Orders();
         Date da=new Date();
         orders.setAccountId(getAccount().getId());
@@ -301,6 +317,8 @@ public class PaymentActivity extends AppCompatActivity {
         orders.setTotalPrice(getTotal());
         orders.setTotalQuantity(getTotalQuan());
         orders.setCoupon(getCoupon());
+
+
         String url = "http://" + ip + ":8081/api/createOrder";
 
         // Tạo JSON từ thông tin của Account
@@ -349,6 +367,54 @@ public class PaymentActivity extends AppCompatActivity {
                             getCoupon().setUsageCount(getCoupon().getUsageCount()+1);
                         }
                         orders.setOrderId(id);
+
+                        //Tạo đơn hàng trong database thành công->tạo zalopay
+                        CreateOrder orderApi = new CreateOrder();
+
+                        try {
+                            Integer price=orders.getTotalPrice().intValue();
+                            JSONObject data = orderApi.createOrder(price.toString());
+                            String code = data.getString("returncode");
+                            //Toast.makeText(getApplicationContext(), "return_code: " + code, Toast.LENGTH_LONG).show();
+
+                            if (code.equals("1")) {
+
+                                String token= data.getString("zptranstoken");
+                                ZaloPaySDK.getInstance().payOrder(PaymentActivity.this,token, "demozpdk://app", new PayOrderListener() {
+                                    @Override
+                                    public void onPaymentSucceeded(String s, String s1, String s2) {
+                                        Intent intent =new Intent(PaymentActivity.this, OrderHistoryActivity.class);
+                                        intent.putExtra("status",1);
+                                        intent.putExtra("orders",orders);
+                                        startActivity(intent);
+                                        Toast.makeText(getApplicationContext(), "Đặt hàng thành công!", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onPaymentCanceled(String s, String s1) {
+                                        Intent intent =new Intent(PaymentActivity.this, OrderHistoryActivity.class);
+                                        intent.putExtra("status",0);
+                                        startActivity(intent);
+                                        Toast.makeText(getApplicationContext(), "Bạn đã hủy thanh toán!", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+
+                                    @Override
+                                    public void onPaymentError(ZaloPayError zaloPayError, String s, String s1) {
+                                        Intent intent =new Intent(PaymentActivity.this, OrderHistoryActivity.class);
+                                        intent.putExtra("status",0);
+                                        startActivity(intent);
+                                        Toast.makeText(getApplicationContext(), "Lỗi thanh toán!", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                });
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
                         createOrderDetail(orders);
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
@@ -415,11 +481,10 @@ public class PaymentActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     String responseData = response.body().string();
                     runOnUiThread(()->{
-                        Toast.makeText(getApplicationContext(), responseData.toString(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), responseData.toString(), Toast.LENGTH_SHORT).show();
                         if(responseData.toString().equals("Đặt hàng thành công!")){
                             cartList.clear();
                             CartPreferences.saveCart(getApplicationContext(),cartList);
-                            finish();
                         }
                     });
                 }
@@ -771,6 +836,11 @@ public class PaymentActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        ZaloPaySDK.getInstance().onResult(intent);
+    }
 
 }
 
