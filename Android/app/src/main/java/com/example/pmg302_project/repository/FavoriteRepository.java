@@ -1,11 +1,15 @@
 package com.example.pmg302_project.repository;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 
+import androidx.annotation.NonNull;
+
 import com.example.pmg302_project.R;
+import com.example.pmg302_project.model.Account;
 import com.example.pmg302_project.service.FavoriteService;
 import com.example.pmg302_project.util.RetrofitClientInstance;
 
@@ -68,5 +72,26 @@ public class FavoriteRepository {
             }
         });
     }
+    public void getAccountByUsername(String username, AccountIdCallback callback) {
+        favoriteService.getAccountByUserName(username).enqueue(new Callback<Account>() {
+            @Override
+            public void onResponse(@NonNull Call<Account> call, @NonNull Response<Account> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onAccountIdRetrieved(response.body().getId());
+                } else {
+                    Log.d("FavoriteRepository", "Failed to retrieve account.");
+                }
+            }
 
+            @Override
+            public void onFailure(Call<Account> call, Throwable t) {
+                Log.e("FavoriteRepository", "Error fetching account: " + t.getMessage());
+            }
+        });
+    }
+
+    // Callback interface for accountId retrieval
+    public interface AccountIdCallback {
+        void onAccountIdRetrieved(int accountId);
+    }
 }

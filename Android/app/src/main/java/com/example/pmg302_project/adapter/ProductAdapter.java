@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -60,6 +61,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private OkHttpClient client = new OkHttpClient();
     private Activity activity; // Add this field
     String ip = COMMONSTRING.ip;
+    FavoriteRepository favoriteRepository;
 
     public ProductAdapter(Activity activity, Context context, List<Product> productList, OnAddToCartClickListener onAddToCartClickListener, boolean isCart) {
         this.context = context;
@@ -71,6 +73,9 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
     public void setFavoriteService(FavoriteService favoriteService) {
         this.favoriteService = favoriteService;
+    }
+    public void setFavoriteRepository(FavoriteRepository favoriteRepository){
+        this.favoriteRepository = favoriteRepository;
     }
     @Override
     public int getItemViewType(int position) {
@@ -132,57 +137,36 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             });
 
             int productId = product.getId();
+
+            // Set initial icon based on favorite status
             productHolder.imgFavorite.setImageResource(
                     favoriteProductIds.contains(productId) ?
                             R.drawable.ic_heart_filled : R.drawable.ic_heart
             );
 
             productHolder.imgFavorite.setOnClickListener(view -> {
-                String username = InMemoryStorage.get("username");
-                if (favoriteProductIds.contains(productId)) {
-                    // Remove favorite after retrieving accountId
-                    getAccountByUsername("hieunh", accountId -> {
-                        // Use retrieved accountId to remove favorite
-                        favoriteService.removeFavorite(accountId, productId)
-                                .enqueue(new Callback<Void>() {
-                                    @Override
-                                    public void onResponse(Call<Void> call, Response<Void> response) {
-                                        if (response.isSuccessful()) {
-                                            favoriteProductIds.remove(productId);
-                                            productHolder.imgFavorite.setImageResource(R.drawable.ic_heart);
-                                            Log.d("ProductAdapter", "Favorite removed successfully.");
-                                        } else {
-                                            Log.d("ProductAdapter", "Failed to remove favorite.");
-                                        }
-                                    }
+                if (favoriteRepository == null) {
+                    Toast.makeText(context, "Favorite service is not available.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                                    @Override
-                                    public void onFailure(Call<Void> call, Throwable t) {
-                                        Log.e("ProductAdapter", "Error removing favorite: " + t.getMessage());
-                                    }
-                                });
+                String username = InMemoryStorage.get("username");
+                if (username == null) {
+                    Toast.makeText(context, "Please log in to manage favorites.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (favoriteProductIds.contains(productId)) {
+                    // Remove favorite
+                    favoriteRepository.getAccountByUsername(username, accountId -> {
+                        favoriteRepository.removeFavorite(accountId, productId, productHolder.imgFavorite, context);
+                        favoriteProductIds.remove(productId);
                     });
                 } else {
-                    // Add favorite after retrieving accountId
-                    getAccountByUsername("hieunh", accountId -> {
-                        favoriteService.addFavorite(accountId, productId)
-                                .enqueue(new Callback<Void>() {
-                                    @Override
-                                    public void onResponse(Call<Void> call, Response<Void> response) {
-                                        if (response.isSuccessful()) {
-                                            favoriteProductIds.add(productId);
-                                            productHolder.imgFavorite.setImageResource(R.drawable.ic_heart_filled);
-                                            Log.d("ProductAdapter", "Favorite added successfully.");
-                                        } else {
-                                            Log.d("ProductAdapter", "Failed to add favorite.");
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<Void> call, Throwable t) {
-                                        Log.e("ProductAdapter", "Error adding favorite: " + t.getMessage());
-                                    }
-                                });
+                    // Add favorite
+                    favoriteRepository.getAccountByUsername(username, accountId -> {
+                        favoriteRepository.addFavorite(accountId, productId, productHolder.imgFavorite, context);
+                        favoriteProductIds.add(productId);
                     });
                 }
             });
@@ -197,7 +181,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         Call<Account> call = favoriteService.getAccountByUserName(username);
         call.enqueue(new Callback<Account>() {
             @Override
-            public void onResponse(Call<Account> call, Response<Account> response) {
+            public void onResponse(@NonNull Call<Account> call, @NonNull Response<Account> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Account account = response.body();
                     callback.onAccountIdRetrieved(account.getId());

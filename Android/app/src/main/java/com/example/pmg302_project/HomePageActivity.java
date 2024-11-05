@@ -360,22 +360,27 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         builder.setView(input);
 
         builder.setPositiveButton("Search", (dialog, which) -> {
-            String productName = input.getText().toString();
-            searchProduct(productName);
+            String productName = input.getText().toString().trim();
+            if (!productName.isEmpty()) {
+                searchProduct(productName);
+            } else {
+                Toast.makeText(HomePageActivity.this, "Enter a product name", Toast.LENGTH_SHORT).show();
+            }
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
     }
+
     private void searchProduct(String productName) {
         ProductService productService = RetrofitClientInstance.getProductService();
         retrofit2.Call<List<Product>> call = productService.searchProducts(productName);
-
+        Log.d(TAG, "search: " + productName);
         call.enqueue(new retrofit2.Callback<List<Product>>() {
             @Override
-            public void onResponse(retrofit2.Call<List<Product>> call, retrofit2.Response<List<Product>> response) {
+            public void onResponse(@NonNull retrofit2.Call<List<Product>> call, @NonNull retrofit2.Response<List<Product>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> products = response.body();
-                    // Handle the product list (e.g., pass it to ListProductActivity)
+
                     Intent intent = new Intent(HomePageActivity.this, ListProductActivity.class);
                     intent.putExtra("PRODUCT_LIST", new Gson().toJson(products));
                     startActivity(intent);
@@ -385,13 +390,13 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             }
 
             @Override
-            public void onFailure(retrofit2.Call<List<Product>> call, Throwable t) {
+            public void onFailure(@NonNull retrofit2.Call<List<Product>> call, @NonNull Throwable t) {
                 Toast.makeText(HomePageActivity.this, "Search failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.d("Search failed", t.getMessage());
-
+                Log.e("Search", "Search failed", t);
             }
         });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

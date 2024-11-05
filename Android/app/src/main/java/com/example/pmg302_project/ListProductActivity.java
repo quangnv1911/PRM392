@@ -3,9 +3,12 @@ package com.example.pmg302_project;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar; // Correct import
@@ -17,6 +20,7 @@ import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.adapter.ProductAdapter;
 import com.example.pmg302_project.model.Product;
+import com.example.pmg302_project.repository.FavoriteRepository;
 import com.example.pmg302_project.service.FavoriteService;
 import com.example.pmg302_project.util.RetrofitClientInstance;
 
@@ -43,6 +47,7 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
     private RecyclerView recyclerView;
     String ip = COMMONSTRING.ip;
     private FavoriteService favoriteService;
+    private FavoriteRepository favoriteRepository;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,13 +61,23 @@ public class ListProductActivity extends AppCompatActivity implements ProductAda
         if (productType != null) {
             getSupportActionBar().setTitle(productType);
         }
-
+        ImageButton btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ListProductActivity.this, HomePageActivity.class);
+                startActivity(intent);
+                finish(); // Optional: Call finish() if you want to close the current activity
+            }
+        });
         recyclerView = findViewById(R.id.recyclerViewProducts);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         favoriteService = RetrofitClientInstance.getFavoriteService();
+        favoriteRepository = new FavoriteRepository(this);
         // Initialize the ProductAdapter with the favoriteService
         productAdapter = new ProductAdapter(this, this,productList, this, false);
-        productAdapter.setFavoriteService(favoriteService); // Set the favorite service
+        productAdapter.setFavoriteService(favoriteService);
+        productAdapter.setFavoriteRepository(favoriteRepository);
         recyclerView.setAdapter(productAdapter); // Set the adapter
 
         fetchProduct(productType);
