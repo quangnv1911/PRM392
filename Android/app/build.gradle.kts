@@ -36,6 +36,9 @@ android {
 }
 
 dependencies {
+    implementation(files("libs/zpdk-release-v3.1.aar"))
+    implementation("commons-codec:commons-codec:1.14")
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
