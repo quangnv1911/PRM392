@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.pmg302_project"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -44,14 +44,20 @@ dependencies {
     implementation(libs.navigation.runtime)
     implementation(libs.navigation.ui)
     implementation(libs.navigation.fragment)
+    implementation(libs.lifecycle.livedata.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
 
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("com.squareup.picasso:picasso:2.71828")
     implementation("com.google.code.gson:gson:2.8.9")
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     implementation(platform("com.google.firebase:firebase-bom:31.0.2"))
     implementation("com.google.firebase:firebase-database")
@@ -61,6 +67,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation("com.google.android.material:material:1.3.0")
+
 }
 
 apply(plugin = "com.google.gms.google-services")

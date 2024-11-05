@@ -6,4 +6,11 @@
     </style>
 
     <style name="Theme.Pmg302project" parent="Base.Theme.Pmg302project" />
+    <style name="Theme.Pmg302project.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.Pmg302project.AppBarOverlay"
+        parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.Pmg302project.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>
