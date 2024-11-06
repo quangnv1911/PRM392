@@ -61,25 +61,28 @@ public class OrderHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        Orders orders = ordersList.get(position);
-        OrderHistoryAdapter.OrdersViewHolder ordersHolder = (OrderHistoryAdapter.OrdersViewHolder) holder;
-        ordersHolder.txtIdOrderHis.setText("Đơn hàng #"+(position+1));
+        if(!ordersList.isEmpty()){
+            Orders orders = ordersList.get(position);
+            OrderHistoryAdapter.OrdersViewHolder ordersHolder = (OrderHistoryAdapter.OrdersViewHolder) holder;
+            ordersHolder.txtIdOrderHis.setText("Đơn hàng #"+(position+1));
 
-        NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
-        String formattedPrice = formatter.format(orders.getTotalPrice());
-        ordersHolder.txtPriceOrderHis.setText("Tổng tiền: "+formattedPrice + " VNĐ");
-        ordersHolder.txtQuanOrderHis.setText("Tổng số lượng: " + orders.getTotalQuantity()+ " sản phẩm");
+            NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+            String formattedPrice = formatter.format(orders.getTotalPrice());
+            ordersHolder.txtPriceOrderHis.setText("Tổng tiền: "+formattedPrice + " VNĐ");
+            ordersHolder.txtQuanOrderHis.setText("Tổng số lượng: " + orders.getTotalQuantity()+ " sản phẩm");
 
-        String[] statusArray = context.getResources().getStringArray(R.array.statusOrder);
-        String status = statusArray[orders.getStatus()];
-        ordersHolder.txtStatusOrderHis.setText("Trạng thái: "+status);
-        if(orders.getStatus() == 0){
-            ordersHolder.btnCancelOrder.setVisibility(View.VISIBLE);
-        }else {
-            ordersHolder.btnCancelOrder.setVisibility(View.GONE);
+            String[] statusArray = context.getResources().getStringArray(R.array.statusOrder);
+            String status = statusArray[orders.getStatus()];
+            ordersHolder.txtStatusOrderHis.setText("Trạng thái: "+status);
+            if(orders.getStatus() == 0){
+                ordersHolder.btnCancelOrder.setVisibility(View.VISIBLE);
+            }else {
+                ordersHolder.btnCancelOrder.setVisibility(View.GONE);
+            }
+
+            ordersHolder.bind(orders,"Đã hủy", onOrderClickListener);
         }
 
-        ordersHolder.bind(orders,"Đã hủy", onOrderClickListener);
 
     }
 

@@ -21,6 +21,6 @@ dependencyResolutionManagement {
         }
     }
 }
-
+include(":libs")
 rootProject.name = "pmg302-project"
 include(":app")
