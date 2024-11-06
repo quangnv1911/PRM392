@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.firebase.messaging)
     implementation(fileTree(mapOf(
-        "dir" to "libs",
+        "dir" to "${project.rootDir}/libs",
         "include" to listOf("*.aar", "*.jar"),
         "exclude" to listOf("")
     )))
