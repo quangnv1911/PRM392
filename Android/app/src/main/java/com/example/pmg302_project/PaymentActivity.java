@@ -485,11 +485,11 @@ public class PaymentActivity extends AppCompatActivity {
                         if(responseData.toString().equals("Đặt hàng thành công!")){
                             cartList.clear();
                             CartPreferences.saveCart(getApplicationContext(),cartList);
-                            Intent intent =new Intent(PaymentActivity.this, OrderHistoryActivity.class);
-                            intent.putExtra("status",0);
-                            startActivity(intent);
-                            Toast.makeText(getApplicationContext(), "Lỗi thanh toán!", Toast.LENGTH_SHORT).show();
-                            finish();
+//                            Intent intent =new Intent(PaymentActivity.this, OrderHistoryActivity.class);
+//                            intent.putExtra("status",0);
+//                            startActivity(intent);
+//                            Toast.makeText(getApplicationContext(), "Lỗi thanh toán!", Toast.LENGTH_SHORT).show();
+//                            finish();
                         }
                     });
                 }
