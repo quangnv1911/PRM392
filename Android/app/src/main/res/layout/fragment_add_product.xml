@@ -1,116 +1,238 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <!-- Toolbar with Back Button -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/facebook_blue"
-        android:orientation="horizontal"
-        android:padding="12dp"
-        android:gravity="center_vertical">
-
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/baseline_arrow_back_ios_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Back" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Add Product"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:layout_marginStart="16dp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Title -->
+        <TextView
+            android:id="@+id/configTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add New Product"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:paddingBottom="12dp" />
+
+        <!-- Product Name -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product Name" />
+        <EditText
+            android:id="@+id/edtProductName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Product Name"
+            android:inputType="text"
+            android:padding="12dp"
+            android:background="@drawable/edit_text_background" />
+
+        <!-- Product Price -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Product Price" />
+        <EditText
+            android:id="@+id/edtPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Product Price"
+            android:inputType="numberDecimal"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/edit_text_background" />
+
+        <!-- Stock Quantity -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stock Quantity" />
+        <EditText
+            android:id="@+id/edtStockQuantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Stock Quantity"
+            android:inputType="number"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/edit_text_background" />
+
+        <!-- Description -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description" />
+        <EditText
+            android:id="@+id/edtDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Description"
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/edit_text_background" />
+
+        <!-- Category Spinner -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Category" />
+        <Spinner
+            android:id="@+id/spinnerCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:padding="12dp"
+            android:background="@drawable/edit_text_background" />
+
+        <!-- Image URL -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Image URL" />
+        <EditText
+            android:id="@+id/edtImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter Image URL"
+            android:inputType="textUri"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/edit_text_background" />
+
+        <!-- Size Entry with Display -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sizes Entered:" />
+        <TextView
+            android:id="@+id/tvSizes"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:padding="8dp"
+            android:background="@drawable/edit_text_background"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Size" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp">
+            android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/edtProductName"
-                android:layout_width="match_parent"
+                android:id="@+id/edtSize"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:hint="Product Name"
+                android:hint="Enter Size"
                 android:inputType="text"
                 android:padding="12dp"
                 android:background="@drawable/edit_text_background" />
 
-            <EditText
-                android:id="@+id/edtPrice"
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/btnAddSize"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Product Price"
-                android:inputType="numberDecimal"
-                android:padding="12dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/edit_text_background" />
+                android:text="Add" />
+        </LinearLayout>
+
+        <!-- Color Entry with Display -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Colors Entered:" />
+        <TextView
+            android:id="@+id/tvColors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:padding="8dp"
+            android:background="@drawable/edit_text_background"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Color" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <EditText
-                android:id="@+id/edtStockQuantity"
-                android:layout_width="match_parent"
+                android:id="@+id/edtColor"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:hint="Stock Quantity"
-                android:inputType="number"
+                android:hint="Enter Color"
+                android:inputType="text"
                 android:padding="12dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/edit_text_background" />
-
-            <EditText
-                android:id="@+id/edtDescription"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Description"
-                android:inputType="textMultiLine"
-                android:padding="12dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/edit_text_background" />
-
-            <EditText
-                android:id="@+id/edtCategoryId"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Category ID"
-                android:inputType="number"
-                android:padding="12dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/edit_text_background" />
-
-            <EditText
-                android:id="@+id/edtImage"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Image URL"
-                android:inputType="textUri"
-                android:padding="12dp"
-                android:layout_marginTop="8dp"
                 android:background="@drawable/edit_text_background" />
 
             <Button
-                android:id="@+id/btnSaveProduct"
-                android:layout_width="match_parent"
+                android:id="@+id/btnAddColor"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Save Product"
-                android:textColor="@android:color/white"
-                android:background="@color/facebook_blue"
-                android:layout_marginTop="16dp"
-                android:padding="12dp" />
+                android:text="Add" />
         </LinearLayout>
-    </ScrollView>
-</LinearLayout>
+
+        <!-- Image Detail URL Entry with Display -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Image Details Entered:" />
+        <TextView
+            android:id="@+id/tvImageDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:padding="8dp"
+            android:background="@drawable/edit_text_background"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Image Detail URL" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edtImageDetail"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="Enter Image Detail URL"
+                android:inputType="textUri"
+                android:padding="12dp"
+                android:background="@drawable/edit_text_background" />
+
+            <Button
+                android:id="@+id/btnAddImageDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add" />
+        </LinearLayout>
+
+        <!-- Save Product Button -->
+        <Button
+            android:id="@+id/btnSaveProduct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Product"
+            android:textColor="@android:color/white"
+            android:background="@color/facebook_blue"
+            android:layout_marginTop="16dp"
+            android:padding="12dp" />
+
+    </LinearLayout>
+</ScrollView>

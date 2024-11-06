@@ -23,7 +23,7 @@ import java.util.Locale;
 
 public class CouponFormActivity extends AppCompatActivity {
 
-    private EditText editCouponCode, editDiscountValue, editMinOrderValue, editMaxOrderValue,edit_min_order_value;
+    private EditText editCouponCode, editDiscountValue, editMinOrderValue, editMaxOrderValue, edit_min_order_value;
     private EditText editUsageLimit, editUsageCount, editStartDate, editEndDate;
     private Button btnSaveCoupon;
     private Coupon coupon;
@@ -65,7 +65,7 @@ public class CouponFormActivity extends AppCompatActivity {
             } else {
                 spinnerDiscountType.setSelection(1); // Chọn giảm trực tiếp
             }
-        }else{
+        } else {
             spinnerDiscountType.setSelection(0); // Chọn %
         }
 
@@ -101,6 +101,7 @@ public class CouponFormActivity extends AppCompatActivity {
             coupon.setCouponCode(couponCode);
 
             // Kiểm tra giá trị giảm giá
+            // Kiểm tra giá trị giảm giá
             String discountValueText = editDiscountValue.getText().toString().trim();
             if (discountValueText.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập giá trị giảm giá", Toast.LENGTH_SHORT).show();
@@ -111,15 +112,20 @@ public class CouponFormActivity extends AppCompatActivity {
                 Toast.makeText(this, "Giá trị giảm giá phải lớn hơn 0", Toast.LENGTH_SHORT).show();
                 return;
             }
-            coupon.setDiscountValue(discountValue);
 
-            // Kiểm tra loại giảm giá
-            String selectedDiscountType = spinnerDiscountType.getSelectedItem().toString();
-            if (selectedDiscountType.equals("%")) {
+            Integer selectedDiscountType = spinnerDiscountType.getSelectedItemPosition();
+            if (selectedDiscountType == 0) {
+                if (discountValue > 100) {
+                    Toast.makeText(this, "Giá trị giảm giá theo % phải trong khoảng 0-100%", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 coupon.setCouponType(0); // 0 cho %
             } else {
                 coupon.setCouponType(1); // 1 cho giảm trực tiếp vào tiền
             }
+
+            coupon.setDiscountValue(discountValue);
+
 
             // Kiểm tra giá trị đơn hàng tối thiểu
             String minOrderValueText = editMinOrderValue.getText().toString().trim();
@@ -134,7 +140,7 @@ public class CouponFormActivity extends AppCompatActivity {
             }
             coupon.setMinOrderValue(minOrderValue);
 
-            // Kiểm tra giá trị đơn hàng tối đa
+
             String maxOrderValueText = editMaxOrderValue.getText().toString().trim();
             if (maxOrderValueText.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập giá trị đơn hàng tối đa", Toast.LENGTH_SHORT).show();

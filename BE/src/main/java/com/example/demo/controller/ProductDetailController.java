@@ -20,6 +20,6 @@ public class ProductDetailController {
 
     @GetMapping("/product-detail")
     public List<ProductDetail> getProductsByType(@RequestParam int productId) {
-        return productDetailRepository.findByProductId(productId);
+        return productDetailRepository.findByProductId((long) productId);
     }
 }

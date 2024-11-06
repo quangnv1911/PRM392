@@ -1,5 +1,6 @@
 package com.example.pmg302_project.Fragments.Products;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +26,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProductFragment extends Fragment {
+public class ProductFragment extends Fragment implements ProductManageAdapter.OnProductActionListener {
     private RecyclerView recyclerView;
     private ProductManageAdapter productAdapter;
     private List<ProductDTO> productList = new ArrayList<>();
@@ -48,7 +49,7 @@ public class ProductFragment extends Fragment {
             public void onResponse(Call<List<ProductDTO>> call, Response<List<ProductDTO>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     productList = response.body();
-                    productAdapter = new ProductManageAdapter(getContext(), productList);
+                    productAdapter = new ProductManageAdapter(getContext(), productList, ProductFragment.this);
                     recyclerView.setAdapter(productAdapter);
                 }
             }
@@ -56,6 +57,73 @@ public class ProductFragment extends Fragment {
             @Override
             public void onFailure(Call<List<ProductDTO>> call, Throwable t) {
                 Toast.makeText(getContext(), "Failed to load products", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+    }
+
+    @Override
+    public void onEditProduct(ProductDTO product) {
+        // Open AddProductFragment in edit mode
+        ProductApi productApi = RetrofitClient.getClient().create(ProductApi.class);
+        Call<ProductDTO> call = productApi.getProduct(product.getProductId());
+        call.enqueue(new Callback<ProductDTO>() {
+            @Override
+            public void onResponse(Call<ProductDTO> call, Response<ProductDTO> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ProductDTO fullProductDetails = response.body();
+
+                    // Open AddProductFragment in edit mode with the fetched product details
+                    AddProductFragment editProductFragment = AddProductFragment.newInstance(fullProductDetails);
+                    getParentFragmentManager().beginTransaction()
+                            .replace(R.id.fragment_container, editProductFragment)
+                            .addToBackStack(null)
+                            .commit();
+
+                } else {
+                    Toast.makeText(getContext(), "Failed to load product details", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductDTO> call, Throwable t) {
+                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+    }
+
+    @Override
+    public void onDeleteProduct(ProductDTO product) {
+        // Show a confirmation dialog before deletion
+        new AlertDialog.Builder(getContext())
+                .setTitle("Xóa sản phẩm")
+                .setMessage("Bạn có chắc muốn xóa sản phẩm không?")
+                .setPositiveButton("Có", (dialog, which) -> deleteProduct(product))
+                .setNegativeButton("Không", null)
+                .show();
+    }
+
+    private void deleteProduct(ProductDTO product) {
+        ProductApi productApi = RetrofitClient.getClient().create(ProductApi.class);
+        Call<Void> call = productApi.deleteProduct(product.getProductId());
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(getContext(), "Xóa sản phẩm thành công", Toast.LENGTH_SHORT).show();
+                    productList.remove(product); // Remove the product from the list
+                    productAdapter.notifyDataSetChanged(); // Refresh RecyclerView
+                } else {
+                    Toast.makeText(getContext(), "Xóa sản phẩm thất bại", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(getContext(), "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

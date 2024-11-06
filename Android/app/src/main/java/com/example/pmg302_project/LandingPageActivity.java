@@ -50,7 +50,7 @@ public class LandingPageActivity extends AppCompatActivity {
             return false;
         });
         // Initialize osmdroid configuration
-        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
+        Configuration.getInstance().setUserAgentValue(BuildConfig.VERSION_NAME);
 
         mapView = findViewById(R.id.mapView1);
         mapView.setMultiTouchControls(true);

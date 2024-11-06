@@ -3,6 +3,7 @@ package com.example.pmg302_project.Fragments.Chats;
 import static com.example.pmg302_project.R.*;
 import static java.security.AccessController.getContext;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.pmg302_project.InMemoryStorage;
 import com.example.pmg302_project.R;
 import com.example.pmg302_project.adapter.Chats.MessageAdapter;
 import com.example.pmg302_project.model.Message;
@@ -33,10 +35,10 @@ import java.util.List;
 public class ChatFragment extends Fragment {
 
     private static final String ARG_CURRENT_USER_ID = "2";
-    private static final String ARG_STORE_ID = "1";
+    private static final String ARG_OTHER_USER_ID = "1";
 
     private String currentUserId;
-    private String storeId;
+    private String otherUserId;
     private RecyclerView recyclerView;
     private EditText inputMessage;
     private ImageButton sendButton;
@@ -44,11 +46,11 @@ public class ChatFragment extends Fragment {
     private List<Message> messageList;
     private DatabaseReference chatRef;
 
-    public static ChatFragment newInstance(String currentUserId, String storeId) {
+    public static ChatFragment newInstance(String currentUserId, String otherUserId) {
         ChatFragment fragment = new ChatFragment();
         Bundle args = new Bundle();
         args.putString(ARG_CURRENT_USER_ID, currentUserId);
-        args.putString(ARG_STORE_ID, storeId);
+        args.putString(ARG_OTHER_USER_ID, otherUserId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,7 +60,7 @@ public class ChatFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             currentUserId = getArguments().getString(ARG_CURRENT_USER_ID);
-            storeId = getArguments().getString(ARG_STORE_ID);
+            otherUserId = getArguments().getString(ARG_OTHER_USER_ID);
         }
     }
 
@@ -76,9 +78,15 @@ public class ChatFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(messageAdapter);
 
-        chatRef = FirebaseDatabase.getInstance().getReference("chats")
-                .child(storeId + "_" + currentUserId);
-
+        String role = InMemoryStorage.get("role");
+        boolean isAdmin = role != null && role.equalsIgnoreCase("admin");
+        if (isAdmin) {
+            chatRef = FirebaseDatabase.getInstance().getReference("chats")
+                    .child(currentUserId + "_" + otherUserId);
+        } else {
+            chatRef = FirebaseDatabase.getInstance().getReference("chats")
+                    .child(otherUserId + "_" + currentUserId);
+        }
         loadMessages();
         sendButton.setOnClickListener(v -> sendMessage());
 
@@ -96,6 +104,7 @@ public class ChatFragment extends Fragment {
 
     private void loadMessages() {
         chatRef.child("messages").addChildEventListener(new ChildEventListener() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Message message = snapshot.getValue(Message.class);
@@ -105,16 +114,20 @@ public class ChatFragment extends Fragment {
             }
 
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
 
             @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) { }
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+            }
 
             @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
         });
     }
 }
