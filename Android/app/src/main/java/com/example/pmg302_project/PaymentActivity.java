@@ -413,11 +413,6 @@ public class PaymentActivity extends AppCompatActivity {
 
                         } catch (Exception e) {
                             e.printStackTrace();
-                            Intent intent =new Intent(PaymentActivity.this, OrderHistoryActivity.class);
-                            intent.putExtra("status",0);
-                            startActivity(intent);
-                            Toast.makeText(getApplicationContext(), "Lỗi thanh toán!", Toast.LENGTH_SHORT).show();
-                            finish();
                         }
 
                         createOrderDetail(orders);
