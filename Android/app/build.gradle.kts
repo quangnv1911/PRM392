@@ -49,10 +49,11 @@ dependencies {
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(fileTree(mapOf(
-        "dir" to "C:\\PRM392\\PRM392\\Android\\libs",
+        "dir" to "${project.rootDir}/libs",
         "include" to listOf("*.aar", "*.jar"),
         "exclude" to listOf("")
     )))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
