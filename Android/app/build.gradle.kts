@@ -50,7 +50,7 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.firebase.messaging)
     implementation(fileTree(mapOf(
-        "dir" to "C:\\PRM392\\PRM392\\Android\\libs",
+        "dir" to "libs",
         "include" to listOf("*.aar", "*.jar"),
         "exclude" to listOf("")
     )))
