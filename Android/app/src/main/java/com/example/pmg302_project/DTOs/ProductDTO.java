@@ -2,13 +2,16 @@ package com.example.pmg302_project.DTOs;
 
 import com.example.pmg302_project.model.Category;
 
-public class ProductDTO {
-    private Long productId;
+import java.io.Serializable;
+import java.util.List;
+
+public class ProductDTO  implements Serializable {
+    private Integer productId;
     private String productName;
     private String image;
     private Double price;
     private Integer stockQuantity;
-    private Category category;
+    private Integer category;
     private String imageLink;
     private String type;
     private Integer purchaseCount;
@@ -16,6 +19,35 @@ public class ProductDTO {
     private String description;
     private Long createdBy;
     private Integer categoryId;
+    private List<String> sizes;
+    private List<String> colors;
+
+    public List<String> getImageProductDetails() {
+        return imageProductDetails;
+    }
+
+    public void setImageProductDetails(List<String> imageProductDetails) {
+        this.imageProductDetails = imageProductDetails;
+    }
+
+    private List<String> imageProductDetails;
+
+
+    public List<String> getSizes() {
+        return sizes;
+    }
+
+    public void setSizes(List<String> sizes) {
+        this.sizes = sizes;
+    }
+
+    public List<String> getColors() {
+        return colors;
+    }
+
+    public void setColors(List<String> colors) {
+        this.colors = colors;
+    }
 
     public Integer getCategoryId() {
         return categoryId;
@@ -29,11 +61,11 @@ public class ProductDTO {
     public ProductDTO() {
     }
 
-    public Long getProductId() {
+    public Integer getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(Integer productId) {
         this.productId = productId;
     }
 
@@ -69,11 +101,11 @@ public class ProductDTO {
         this.stockQuantity = stockQuantity;
     }
 
-    public Category getCategory() {
+    public Integer getCategory() {
         return category;
     }
 
-    public void setCategory(Category category) {
+    public void setCategory(Integer category) {
         this.category = category;
     }
 

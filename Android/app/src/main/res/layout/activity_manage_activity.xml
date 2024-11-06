@@ -1,27 +1,47 @@
-<!-- activity_management.xml -->
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
+    <!-- AppBarLayout containing Toolbar as the header -->
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
 
-        <FrameLayout
-            android:id="@+id/fragment_container"
+
+        <include
+            layout="@layout/header_toolbar" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- Content layout below the Toolbar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- SwipeRefreshLayout fills remaining space below the toolbar -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize">
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            <!-- Fragment container for content -->
+            <FrameLayout
+                android:id="@+id/fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
 
-
+    <!-- Floating Action Button aligned to bottom-right -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btnAddProduct"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
+        android:contentDescription="Add Product"
         android:src="@drawable/baseline_add_24" />
-</RelativeLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

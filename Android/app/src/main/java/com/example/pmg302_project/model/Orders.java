@@ -2,6 +2,7 @@ package com.example.pmg302_project.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class Orders implements Serializable {
 
@@ -11,7 +12,18 @@ public class Orders implements Serializable {
     private Double totalPrice;
     private Integer status;
     private Integer accountId;
+    private String userName;
+
+    public List<OrderDetail> getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
+    }
+
     private Coupon coupon;
+    private List<OrderDetail> orderDetails;
     public Orders() {
     }
 

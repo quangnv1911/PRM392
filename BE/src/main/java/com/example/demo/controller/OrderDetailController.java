@@ -15,12 +15,7 @@ import com.example.demo.service.OrderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -67,6 +62,13 @@ public class OrderDetailController {
     public ResponseEntity<List<OrderDetail>> getOrderDetailByOrderId(@RequestParam Map<String,String> orderId) {
         int orderid=Integer.parseInt(orderId.get("orderId"));
         List<OrderDetail> list = orderDetailRepository.findByOrderOrderId(orderid);
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/order-detail/{id}")
+    public ResponseEntity<List<OrderDetail>> getOrderDetail(@PathVariable Integer id) {
+
+        List<OrderDetail> list = orderDetailRepository.findByOrderOrderId(id);
         return ResponseEntity.ok(list);
     }
 }

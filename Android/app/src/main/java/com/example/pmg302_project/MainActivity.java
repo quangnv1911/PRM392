@@ -35,6 +35,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import com.example.pmg302_project.Utils.COMMONSTRING;
+import com.example.pmg302_project.service.NetworkChangeReceiverService;
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.BeginSignInResult;
 import com.google.android.gms.auth.api.identity.Identity;
@@ -101,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
         editTextEmail.addTextChangedListener(loginTextWatcher);
         editTextPassword.addTextChangedListener(loginTextWatcher);
+
     }
 
     public void buttonGoogleSignIn(View view) {

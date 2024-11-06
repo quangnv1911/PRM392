@@ -14,15 +14,18 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface ProductApi {
-    @GET("api/product")
+    @GET("api/products")
     Call<List<ProductDTO>> getProducts();
 
     @POST("api/product")
     Call<ProductDTO> addProduct(@Body ProductDTO product);
 
     @PUT("api/product/{id}")
-    Call<ProductDTO> updateProduct(@Path("id") Integer id, @Body Product product);
+    Call<ProductDTO> updateProduct(@Path("id") Integer id, @Body ProductDTO product);
 
     @DELETE("api/product/{id}")
     Call<Void> deleteProduct(@Path("id") Integer id);
+
+    @GET("api/product/{id}")
+    Call<ProductDTO> getProduct(@Path("id") Integer id);
 }
