@@ -11,6 +11,7 @@ public class Orders {
     private Double totalPrice;
     private Integer status;
     private Integer accountId;
+    private String userName;
 
     public List<OrderDetail> getOrderDetails() {
         return orderDetails;

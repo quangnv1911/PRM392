@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -23,10 +24,12 @@ import java.util.List;
 public class ProductManageAdapter extends RecyclerView.Adapter<ProductManageAdapter.ProductViewHolder> {
     private List<ProductDTO> productList = new ArrayList<>();
     private Context context;
+    private OnProductActionListener listener;
 
-    public ProductManageAdapter(Context context, List<ProductDTO> productList) {
+    public ProductManageAdapter(Context context, List<ProductDTO> productList, OnProductActionListener listener) {
         this.context = context;
         this.productList = productList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -52,6 +55,8 @@ public class ProductManageAdapter extends RecyclerView.Adapter<ProductManageAdap
                 .error(R.drawable.baseline_image_24) // Hình ảnh hiển thị khi tải thất bại
                 .into(holder.image);
         // Thêm sự kiện chỉnh sửa và xóa sản phẩm tại đây.
+        holder.editButton.setOnClickListener(v -> listener.onEditProduct(product));
+        holder.deleteButton.setOnClickListener(v -> listener.onDeleteProduct(product));
     }
 
     @Override
@@ -62,6 +67,8 @@ public class ProductManageAdapter extends RecyclerView.Adapter<ProductManageAdap
     public class ProductViewHolder extends RecyclerView.ViewHolder {
         TextView productName, price, productPurchase, quantity, rate;
         ImageView image;
+        ImageButton editButton, deleteButton;
+
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             productName = itemView.findViewById(R.id.productNameManage);
@@ -70,6 +77,13 @@ public class ProductManageAdapter extends RecyclerView.Adapter<ProductManageAdap
             quantity = itemView.findViewById(R.id.productQuantityManage);
             rate = itemView.findViewById(R.id.productRateManage);
             image = itemView.findViewById(R.id.productImageManage);
+            editButton = itemView.findViewById(R.id.editButtonManage);
+            deleteButton = itemView.findViewById(R.id.deleteButtonManage);
         }
+    }
+
+    public interface OnProductActionListener {
+        void onEditProduct(ProductDTO product);
+        void onDeleteProduct(ProductDTO product);
     }
 }

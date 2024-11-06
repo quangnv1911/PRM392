@@ -5,7 +5,9 @@ import static android.content.ContentValues.TAG;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -24,17 +26,22 @@ import com.example.pmg302_project.Utils.COMMONSTRING;
 import com.example.pmg302_project.Utils.CartPreferences;
 import com.example.pmg302_project.adapter.ProductAdapter;
 import com.example.pmg302_project.model.Product;
+import com.example.pmg302_project.service.NetworkChangeReceiverService;
 import com.example.pmg302_project.service.ProductService;
 import com.example.pmg302_project.util.RetrofitClientInstance;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -68,6 +75,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     String ip = COMMONSTRING.ip;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -75,6 +83,13 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.homepage);
         FirebaseApp.initializeApp(this);
+
+//        FirebaseMessaging.getInstance().subscribeToTopic("all")
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                    }
+//                });
+//
 
         // Initialize drawer layout and navigation view
         drawerLayout = findViewById(R.id.drawer_layout);
@@ -116,7 +131,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             } else if (title.equals("Login")) {
                 Intent intent2 = new Intent(HomePageActivity.this, MainActivity.class);
                 startActivity(intent2);
-            }else if (title.equals("Order History")) {
+            } else if (title.equals("Order History")) {
                 Intent intent2 = new Intent(HomePageActivity.this, OrderHistoryActivity.class);
                 startActivity(intent2);
             }
@@ -156,15 +171,45 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         recyclerViewTopProducts = findViewById(R.id.recyclerViewTopProducts);
         recyclerViewTopProducts.setLayoutManager(new LinearLayoutManager(this));
 
-        productAdapter = new ProductAdapter(this,this, productList, this, false);
+        productAdapter = new ProductAdapter(this, this, productList, this, false);
         recyclerViewTopProducts.setAdapter(productAdapter);
 
         fetchTopProducts();
 
         FloatingActionButton fabChat = findViewById(R.id.fabChat);
         fabChat.setOnClickListener(view -> openChatBubble());
+
+        requestPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        showNotification("Permission Granted", "You can now receive notifications.");
+                    } else {
+                        Log.d("Permission", "Notification permission was denied.");
+                    }
+                }
+        );
+
+        // Check and request notification permission for Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission();
+        }
+        Intent serviceIntent = new Intent(this, NetworkChangeReceiverService.class);
+        this.startService(serviceIntent);
     }
 
+
+    private void requestNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted; request it
+            requestPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS);
+        }
+    }
+
+    private void showNotification(String title, String message) {
+        // Your existing showNotification code here
+    }
     private void fetchButtonData() {
         String url = "http://" + ip + ":8081/api/buttons"; // Replace with your actual API endpoint
 
@@ -352,6 +397,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         }
         return super.onOptionsItemSelected(item);
     }
+
     private void showSearchDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Search Product");
@@ -366,6 +412,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
     }
+
     private void searchProduct(String productName) {
         ProductService productService = RetrofitClientInstance.getProductService();
         retrofit2.Call<List<Product>> call = productService.searchProducts(productName);
@@ -392,6 +439,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             }
         });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();

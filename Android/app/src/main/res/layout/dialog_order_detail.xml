@@ -5,13 +5,6 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Order Details"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_gravity="center_horizontal" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewOrderDetails"

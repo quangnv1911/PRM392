@@ -34,6 +34,7 @@ public class ManageProductActivity extends AppCompatActivity {
             showProductFragment();
             swipeRefreshLayout.setRefreshing(false); // Stop the refresh animation after loading
         });
+
         btnAddProduct.setOnClickListener(view -> {
             AddProductFragment addProductFragment = new AddProductFragment();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -41,6 +42,8 @@ public class ManageProductActivity extends AppCompatActivity {
             transaction.addToBackStack(null); // Allows user to navigate back
             transaction.commit();
         });
+
+
     }
 
     private void showProductFragment() {

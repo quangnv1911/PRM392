@@ -8,17 +8,6 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewOrders"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/fabAddOrder"/>
+        android:layout_height="match_parent"/>
 
-    <!-- Floating Action Button for adding new orders -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddOrder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"
-        android:src="@drawable/baseline_arrow_back_ios_24"
-        android:contentDescription="Quay về trang trước" />
 </RelativeLayout>

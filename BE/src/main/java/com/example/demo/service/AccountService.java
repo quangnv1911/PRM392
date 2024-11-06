@@ -16,6 +16,7 @@ public class AccountService {
     private AccountRepository accountRepository;
     @Autowired
     private UserRepository userRepository;
+
     public Optional<Account> updateAccountPayment(String accountId, String fullName, String phone, String address) {
 
         Optional<Account> acc = accountRepository.findById(Long.parseLong(accountId));
@@ -41,6 +42,7 @@ public class AccountService {
         }
         return null; // or throw an exception if user/account not found
 
+    }
 
     public Account updateAccountDetails(Account account, String fullName, String phone, String address) {
         account.setFullname(fullName);

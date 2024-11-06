@@ -1,6 +1,7 @@
 package com.example.pmg302_project.Fragments.Orders;
 
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,8 +42,7 @@ public class OrdersFragment extends Fragment {
         orderAdapter = new OrderAdapter(orderList);
         recyclerView.setAdapter(orderAdapter);
 
-        fabAddOrder = view.findViewById(R.id.fabAddOrder);
-        fabAddOrder.setOnClickListener(v -> addOrder());
+
 
         loadOrders();
 
@@ -52,6 +52,7 @@ public class OrdersFragment extends Fragment {
     private void loadOrders() {
         OrderApi ordersApi = RetrofitClient.getClient().create(OrderApi.class);
         ordersApi.getAllOrders().enqueue(new Callback<List<Orders>>() {
+            @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onResponse(Call<List<Orders>> call, Response<List<Orders>> response) {
                 if (response.isSuccessful() && response.body() != null) {
