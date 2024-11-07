@@ -9,11 +9,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pmg302_project.ChatActivity;
 import com.example.pmg302_project.CouponListActivity;
+import com.example.pmg302_project.Fragments.Category.ManageCategoryFragment;
+import com.example.pmg302_project.Fragments.Customer.CustomerListFragment;
 import com.example.pmg302_project.ManageProductActivity;
 import com.example.pmg302_project.R;
 import com.example.pmg302_project.adapter.MenuAdapter;
@@ -40,6 +44,8 @@ public class MenuFragment extends Fragment {
         menuItems.add(new MenuItem("Quản lý sản phẩm", R.drawable.ic_store));
         menuItems.add(new MenuItem("Quản lí mã giảm giá", R.drawable.ic_voucher));
         menuItems.add(new MenuItem("Quản lí đơn hàng", R.drawable.ic_inventory));
+        menuItems.add(new MenuItem("Quản lí phân loại", R.drawable.category));
+        menuItems.add(new MenuItem("Quản lí khách hàng", R.drawable.customer));
         menuItems.add(new MenuItem("Chat với khách hàng", R.drawable.baseline_chat_24));
 
         // Thêm các mục khác vào danh sách tương tự...
@@ -59,13 +65,28 @@ public class MenuFragment extends Fragment {
                     startActivity(new Intent(getContext(), ManageProductActivity.class));
                     break;
                 case 4:
+                    loadFragment(new ManageCategoryFragment());
+                    break;
+                    case 5:
+                    loadFragment(new CustomerListFragment());
+                    break;
+                case 6:
                     startActivity(new Intent(getContext(), ChatActivity.class));
                     break;
+
                 // Add more cases if you add more menu items
             }
         });
         menuRecyclerView.setAdapter(menuAdapter);
 
         return view;
+    }
+    private void loadFragment(Fragment fragment) {
+        FragmentTransaction transaction = ((FragmentActivity) getContext())
+                .getSupportFragmentManager()
+                .beginTransaction();
+        transaction.replace(R.id.fragment_container, fragment); // replace with the container ID where the fragment should display
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

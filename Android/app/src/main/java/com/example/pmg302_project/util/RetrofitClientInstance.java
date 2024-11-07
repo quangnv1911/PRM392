@@ -1,5 +1,7 @@
 package com.example.pmg302_project.util;
 
+import com.example.pmg302_project.Utils.COMMONSTRING;
+import com.example.pmg302_project.service.CustomerService;
 import com.example.pmg302_project.service.FavoriteService;
 import com.example.pmg302_project.service.ProductService;
 
@@ -7,8 +9,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClientInstance {
+    static String ip = COMMONSTRING.ip;
     private static Retrofit retrofit;
-    private static final String BASE_URL = "http://10.33.43.60:8081/api/";
+    private static final String BASE_URL = "http://"+ip+":8081/api/";
 
     public static Retrofit getRetrofitInstance() {
         if (retrofit == null) {
@@ -30,5 +33,8 @@ public class RetrofitClientInstance {
                     .build();
         }
         return retrofit.create(ProductService.class);
+    }
+    public static CustomerService getCustomerService() {
+        return getRetrofitInstance().create(CustomerService.class);
     }
 }

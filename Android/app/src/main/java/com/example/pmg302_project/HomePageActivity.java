@@ -4,8 +4,14 @@ import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -28,6 +34,7 @@ import com.example.pmg302_project.service.ProductService;
 import com.example.pmg302_project.util.RetrofitClientInstance;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -35,6 +42,7 @@ import com.squareup.picasso.Picasso;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.core.view.GravityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,16 +77,49 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
     private NavigationView navigationView;
     String ip = COMMONSTRING.ip;
 
+    private static final String PREFS_NAME = "cart_prefs";
+    private static final String KEY_FIRST_LAUNCH = "isFirstLaunch";
+    private static final String KEY_CART_NOTIFICATION_SHOWN = "isCartNotificationShown";
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.homepage);
         FirebaseApp.initializeApp(this);
-
         // Initialize drawer layout and navigation view
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
+
+        // Load cart data
+        loadCartData();
+        // Load cart data
+        cartList = CartPreferences.loadCart(this);
+        Log.e("cart size", "cart size: " + cartList.size());
+
+        // SharedPreferences to check launch status and notification status
+// SharedPreferences to check launch status and notification status
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean isFirstLaunch = prefs.getBoolean(KEY_FIRST_LAUNCH, true);
+        boolean isCartNotificationShown = prefs.getBoolean(KEY_CART_NOTIFICATION_SHOWN, false);
+
+// Log the preferences values to ensure they are loaded correctly
+        Log.e("SharedPrefs", "isFirstLaunch: " + isFirstLaunch + ", isCartNotificationShown: " + isCartNotificationShown);
+
+// Only show the notification if it's the first launch and the notification hasn't been shown before
+        if (isFirstLaunch && !isCartNotificationShown && !cartList.isEmpty()) {
+            Log.e("Debug", "Entering IF block: Showing notification");
+            showCartNotificationAndroid();  // Show Android notification
+            showCartNotification();         // Show in-app notification
+
+            // Update preferences to prevent future notifications
+            prefs.edit()
+                    .putBoolean(KEY_FIRST_LAUNCH, false)  // Set this to false to ensure it doesn't run again
+                    .putBoolean(KEY_CART_NOTIFICATION_SHOWN, true)  // Set this to true to prevent future notifications
+                    .apply();
+        } else {
+            Log.e("Debug", "Not first launch or notification already shown.");
+        }
 
 
         viewFlipper = findViewById(R.id.viewFlipper);
@@ -119,6 +160,9 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             }else if (title.equals("Order History")) {
                 Intent intent2 = new Intent(HomePageActivity.this, OrderHistoryActivity.class);
                 startActivity(intent2);
+            }else if(title.equals("Favorite")){
+                Intent intent2 = new Intent(HomePageActivity.this, FavoriteListActivity.class);
+                startActivity(intent2);
             }
             drawerLayout.closeDrawer(GravityCompat.START);
             return true;
@@ -129,22 +173,25 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             int itemId = item.getItemId();
             Intent intent;
             if (itemId == R.id.nav_home) {
-                // Handle home action
-                intent = new Intent(this, HomePageActivity.class);
-                startActivity(intent);
-                finish();
+
                 return true;
             } else if (itemId == R.id.nav_order) {
                 // Handle order action
-                intent = new Intent(this, CartActivity.class);
+                intent = new Intent(HomePageActivity.this, CartActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
+
                 finish();
+
                 return true;
             } else if (itemId == R.id.nav_map) {
                 // Handle map action
-                intent = new Intent(this, LandingPageActivity.class);
+                intent = new Intent(HomePageActivity.this, LandingPageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
+
                 finish();
+
                 return true;
             }
             return false;
@@ -160,10 +207,55 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         recyclerViewTopProducts.setAdapter(productAdapter);
 
         fetchTopProducts();
-
         FloatingActionButton fabChat = findViewById(R.id.fabChat);
         fabChat.setOnClickListener(view -> openChatBubble());
     }
+    private void loadCartData() {
+        // Assuming CartPreferences is a utility class that retrieves the cart items
+        cartList = CartPreferences.loadCart(this);
+        if (cartList == null) {
+            cartList = new ArrayList<>(); // Initialize as an empty list if null
+        }
+    }
+
+    private void showCartNotification() {
+        // Show notification if cart has items
+        if (!cartList.isEmpty()) {
+            Snackbar.make(findViewById(android.R.id.content), "You have items in your cart!", Snackbar.LENGTH_LONG).show();
+        }
+    }
+    public void showCartNotificationAndroid() {
+        // Check if cart has products
+        if (cartList != null && !cartList.isEmpty()) {
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            String channelId = "cart_channel";
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(channelId, "Cart Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+                notificationManager.createNotificationChannel(channel);
+            }
+
+            Intent intent = new Intent(this, CartActivity.class);
+            PendingIntent pendingIntent;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, channelId)
+                    .setSmallIcon(R.drawable.ic_notify)
+                    .setContentTitle("Cart Notification")
+                    .setContentText("You have items in your cart!")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true);
+
+            notificationManager.notify(1, builder.build());
+        }
+    }
+//                    .setPriority(NotificationCompat.PRIORITY_HIGH)
 
     private void fetchButtonData() {
         String url = "http://" + ip + ":8081/api/buttons"; // Replace with your actual API endpoint
@@ -375,12 +467,13 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
         ProductService productService = RetrofitClientInstance.getProductService();
         retrofit2.Call<List<Product>> call = productService.searchProducts(productName);
         Log.d(TAG, "search: " + productName);
+
         call.enqueue(new retrofit2.Callback<List<Product>>() {
             @Override
             public void onResponse(@NonNull retrofit2.Call<List<Product>> call, @NonNull retrofit2.Response<List<Product>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<Product> products = response.body();
-
+                    Log.d(TAG, "result search: " + products);
                     Intent intent = new Intent(HomePageActivity.this, ListProductActivity.class);
                     intent.putExtra("PRODUCT_LIST", new Gson().toJson(products));
                     startActivity(intent);
@@ -392,7 +485,7 @@ public class HomePageActivity extends AppCompatActivity implements ProductAdapte
             @Override
             public void onFailure(@NonNull retrofit2.Call<List<Product>> call, @NonNull Throwable t) {
                 Toast.makeText(HomePageActivity.this, "Search failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                Log.e("Search", "Search failed", t);
+                Log.e(TAG, "Search failed", t);
             }
         });
     }

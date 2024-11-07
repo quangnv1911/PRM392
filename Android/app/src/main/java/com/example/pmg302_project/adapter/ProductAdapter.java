@@ -32,9 +32,13 @@ import com.example.pmg302_project.model.Account;
 import com.example.pmg302_project.model.Product;
 import com.example.pmg302_project.repository.FavoriteRepository;
 import com.example.pmg302_project.service.FavoriteService;
+import com.example.pmg302_project.service.ProductService;
+import com.example.pmg302_project.util.ApiResponse;
+import com.example.pmg302_project.util.RetrofitClientInstance;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashSet;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,8 +51,10 @@ import java.util.Set;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+
 
 public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -61,8 +67,7 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private OkHttpClient client = new OkHttpClient();
     private Activity activity; // Add this field
     String ip = COMMONSTRING.ip;
-    FavoriteRepository favoriteRepository;
-
+    String username;
     public ProductAdapter(Activity activity, Context context, List<Product> productList, OnAddToCartClickListener onAddToCartClickListener, boolean isCart) {
         this.context = context;
         this.productList = productList;
@@ -70,13 +75,13 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         this.isCart = isCart;
         this.favoriteProductIds = new HashSet<>();
         this.activity = activity; // Initialize this field
+        this.favoriteService = RetrofitClientInstance.getFavoriteService();
     }
+
     public void setFavoriteService(FavoriteService favoriteService) {
         this.favoriteService = favoriteService;
     }
-    public void setFavoriteRepository(FavoriteRepository favoriteRepository){
-        this.favoriteRepository = favoriteRepository;
-    }
+
     @Override
     public int getItemViewType(int position) {
         return isCart ? R.layout.item_cart : R.layout.item_product;
@@ -137,53 +142,102 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             });
 
             int productId = product.getId();
-
-            // Set initial icon based on favorite status
             productHolder.imgFavorite.setImageResource(
-                    favoriteProductIds.contains(productId) ?
-                            R.drawable.ic_heart_filled : R.drawable.ic_heart
+                    favoriteProductIds.contains(productId) ? R.drawable.ic_heart_filled : R.drawable.ic_heart
             );
 
             productHolder.imgFavorite.setOnClickListener(view -> {
-                if (favoriteRepository == null) {
-                    Toast.makeText(context, "Favorite service is not available.", Toast.LENGTH_SHORT).show();
+                // Get userId from storage
+                String userIdString = InMemoryStorage.get("userId");
+
+                // Ensure userIdString is not null or empty to avoid parsing errors
+                if (userIdString == null || userIdString.isEmpty()) {
+                    Log.d("ProductAdapter", "UserId is null or empty, cannot toggle favorite.");
                     return;
                 }
 
-                String username = InMemoryStorage.get("username");
-                if (username == null) {
-                    Toast.makeText(context, "Please log in to manage favorites.", Toast.LENGTH_SHORT).show();
+                Long userId;
+                try {
+                    userId = Long.parseLong(userIdString);
+                } catch (NumberFormatException e) {
+                    Log.e("ProductAdapter", "Error parsing userId: " + e.getMessage());
                     return;
                 }
 
+                Log.d("ProductAdapter", "UserId: " + userId);
+
+                // Toggle favorite status
                 if (favoriteProductIds.contains(productId)) {
-                    // Remove favorite
-                    favoriteRepository.getAccountByUsername(username, accountId -> {
-                        favoriteRepository.removeFavorite(accountId, productId, productHolder.imgFavorite, context);
-                        favoriteProductIds.remove(productId);
+                    // Remove favorite if currently favorited
+                    getAccountByUserId(userId, accountId -> {
+                        favoriteService.removeFavorite(accountId, productId)
+                                .enqueue(new Callback<Void>() {
+                                    @Override
+                                    public void onResponse(Call<Void> call, Response<Void> response) {
+                                        if (response.isSuccessful()) {
+                                            // Update UI and list after removal
+                                            favoriteProductIds.remove(productId);
+                                            productHolder.imgFavorite.setImageResource(R.drawable.ic_heart);
+                                            Log.d("ProductAdapter", "Favorite removed successfully.");
+                                            Toast.makeText(context,"Favorite removed successfully.",Toast.LENGTH_LONG);
+                                        } else {
+                                            Log.d("ProductAdapter", "Failed to remove favorite.");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Void> call, Throwable t) {
+                                        Log.e("ProductAdapter", "Error removing favorite: " + t.getMessage());
+                                    }
+                                });
                     });
                 } else {
-                    // Add favorite
-                    favoriteRepository.getAccountByUsername(username, accountId -> {
-                        favoriteRepository.addFavorite(accountId, productId, productHolder.imgFavorite, context);
-                        favoriteProductIds.add(productId);
+                    // Add favorite if not currently favorited
+                    getAccountByUserId(userId, accountId -> {
+                        favoriteService.addFavorite(accountId, productId)
+                                .enqueue(new Callback<Void>() {
+                                    @Override
+                                    public void onResponse(Call<Void> call, Response<Void> response) {
+                                        if (response.isSuccessful()) {
+                                            // Update UI and list after addition
+                                            favoriteProductIds.add(productId);
+                                            productHolder.imgFavorite.setImageResource(R.drawable.ic_heart_filled);
+                                            Log.d("ProductAdapter", "Favorite added successfully.");
+
+                                            Toast.makeText(context,"Favorite added successfully.",Toast.LENGTH_LONG);
+                                        } else {
+                                            Log.d("ProductAdapter", "Failed to add favorite.");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<Void> call, Throwable t) {
+                                        Log.e("ProductAdapter", "Error adding favorite: " + t.getMessage());
+                                    }
+                                });
                     });
                 }
             });
         }
     }
-    public void getAccountByUsername(String username, AccountIdCallback callback) {
+    public void getAccountByUserId(Long userId, AccountIdCallback callback) {
         if (favoriteService == null) {
             Log.e("ProductAdapter", "FavoriteService is null!");
             return; // Exit if favoriteService is null
         }
 
-        Call<Account> call = favoriteService.getAccountByUserName(username);
+        // Call the API using userId to get the account details
+        Call<Account> call = favoriteService.getAccountByUserId(userId);
         call.enqueue(new Callback<Account>() {
             @Override
-            public void onResponse(@NonNull Call<Account> call, @NonNull Response<Account> response) {
+            public void onResponse(Call<Account> call, Response<Account> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Account account = response.body();
+
+                    // Log the account ID only for confirmation
+                    Log.d("ProductAdapter GetAccountId", "Retrieved accountId: " + account.getId());
+
+                    // Pass accountId to the callback
                     callback.onAccountIdRetrieved(account.getId());
                 } else {
                     Log.d("ProductAdapter", "Failed to retrieve account.");
@@ -196,6 +250,36 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
         });
     }
+
+
+    public void getAccountByUsername(String username, AccountIdCallback callback) {
+        if (favoriteService == null) {
+            Log.e("ProductAdapter", "FavoriteService is null!");
+            return; // Exit if favoriteService is null
+        }
+
+        Call<Account> call = favoriteService.getAccountByUsername(username);
+        call.enqueue(new Callback<Account>() {
+            @Override
+            public void onResponse(Call<Account> call, Response<Account> response) {
+                Log.d("ProductAdapter Getacc: ", String.valueOf(response.body()));
+
+                if (response.isSuccessful() && response.body() != null) {
+                    Account account = response.body();
+
+                    callback.onAccountIdRetrieved(account.getId());
+                } else {
+                    Log.d("ProductAdapter", "Failed to retrieve account.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Account> call, Throwable t) {
+                Log.e("ProductAdapter", "Error fetching account: " + t.getMessage());
+            }
+        });
+    }
+
     // Callback interface for accountId retrieval
     public interface AccountIdCallback {
         void onAccountIdRetrieved(int accountId);
@@ -210,42 +294,34 @@ public class ProductAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void onAddToCartClick(Product product, int quantity, String size, String color);
     }
 
-    // Add this method to fetch sizes and colors from the API
-private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner colorSpinner) {
-    String url = "http://"+ip+":8081/api/product/sizes-colors?productId=" + productId;
+    private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner colorSpinner) {
+        Log.d("fetchSizesAndColors", "Fetching sizes and colors for productId: " + productId);
+        ProductService productService = RetrofitClientInstance.getProductService();
+        Call<ApiResponse> call = productService.getSizesAndColors(productId);
 
-    Request request = new Request.Builder()
-            .url(url)
-            .build();
-
-    client.newCall(request).enqueue(new okhttp3.Callback() {
-
-        @Override
-        public void onFailure(@NonNull okhttp3.Call call, @NonNull IOException e) {
-            e.printStackTrace();
-        }
-
-        @Override
-        public void onResponse(@NonNull okhttp3.Call call, @NonNull okhttp3.Response response) throws IOException {
-            if (response.isSuccessful()) {
-                String responseData = response.body().toString();
-                try {
-                    JSONObject jsonObject = new JSONObject(responseData);
-                    JSONArray sizesArray = jsonObject.getJSONArray("sizes");
-                    JSONArray colorsArray = jsonObject.getJSONArray("colors");
-
+        call.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                Log.d("fetchSizesAndColors", "onResponse called");
+                if (response.isSuccessful() && response.body() != null) {
                     List<String> sizes = new ArrayList<>();
                     List<String> colors = new ArrayList<>();
 
-                    for (int i = 0; i < sizesArray.length(); i++) {
-                        sizes.add(sizesArray.getString(i));
+                    for (String size : response.body().getSizes()) {
+                        sizes.add("size " + size); // Prepend "size"
                     }
 
-                    for (int i = 0; i < colorsArray.length(); i++) {
-                        colors.add(colorsArray.getString(i));
+                    for (String color : response.body().getColors()) {
+                        colors.add("màu " + color); // Prepend "màu"
                     }
+                    Log.d("fetchSizesAndColors", sizes.toString());
+                    Log.d("fetchSizesAndColors", colors.toString());
 
                     activity.runOnUiThread(() -> {
+                        Log.d("fetchSizesAndColors", "Updating UI with sizes and colors");
+                        Log.d("fetchSizesAndColors", "Context: " + context);
+                        Log.d("fetchSizesAndColors", "Activity: " + activity);
+
                         ArrayAdapter<String> sizeAdapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, sizes);
                         sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         sizeSpinner.setAdapter(sizeAdapter);
@@ -254,14 +330,18 @@ private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner col
                         colorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         colorSpinner.setAdapter(colorAdapter);
                     });
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                } else {
+                    Log.d("fetchSizesAndColors", "Response is not successful or body is null");
                 }
             }
-        }
-    });
-}
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                Log.e("fetchSizesAndColors", "onFailure called", t);
+            }
+        });
+    }
+
     private void showAddToCartDialog(Product product) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_to_cart, null);
@@ -275,21 +355,20 @@ private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner col
         TextView totalPriceTextView = dialogView.findViewById(R.id.totalPriceTextView);
         Button addToCartButton = dialogView.findViewById(R.id.addToCartButton);
 
+        // Load product image and set name
         Picasso.get().load(product.getImageLink()).into(productImage);
         productName.setText(product.getName());
 
+        // Fetch sizes and colors
         fetchSizesAndColors(product.getId(), sizeSpinner, colorSpinner);
-
 
         // Add TextWatcher to quantityEditText
         quantityEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
             public void afterTextChanged(Editable s) {
@@ -312,8 +391,9 @@ private void fetchSizesAndColors(int productId, Spinner sizeSpinner, Spinner col
             }
 
             int quantity = Integer.parseInt(quantityStr);
-            String size = sizeSpinner.getSelectedItem().toString();
-            String color = colorSpinner.getSelectedItem().toString();
+            String size = sizeSpinner.getSelectedItem() != null ? sizeSpinner.getSelectedItem().toString() : "";
+            String color = colorSpinner.getSelectedItem() != null ? colorSpinner.getSelectedItem().toString() : "";
+
             if (onAddToCartClickListener != null) {
                 onAddToCartClickListener.onAddToCartClick(product, quantity, size, color);
             }

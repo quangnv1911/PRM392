@@ -1,6 +1,10 @@
 package com.example.pmg302_project.model;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Account {
+
+    @SerializedName("accountId")
     private int id;
     private String fullname;
     private String phone;

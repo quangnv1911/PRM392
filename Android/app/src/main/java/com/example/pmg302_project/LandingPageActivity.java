@@ -30,21 +30,22 @@ public class LandingPageActivity extends AppCompatActivity {
             Intent intent;
             if (itemId == R.id.nav_home) {
                 // Handle home action
-                intent = new Intent(this, HomePageActivity.class);
+                intent = new Intent(LandingPageActivity.this, HomePageActivity.class);
                 startActivity(intent);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
                 finish();
                 return true;
             } else if (itemId == R.id.nav_order) {
                 // Handle order action
-                intent = new Intent(this, CartActivity.class);
+                intent = new Intent(LandingPageActivity.this, CartActivity.class);
                 startActivity(intent);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+
                 finish();
+
                 return true;
             } else if (itemId == R.id.nav_map) {
-                // Handle map action
-                intent = new Intent(this, LandingPageActivity.class);
-                startActivity(intent);
-                finish();
                 return true;
             }
             return false;

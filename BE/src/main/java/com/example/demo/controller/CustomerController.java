@@ -5,9 +5,12 @@ import com.example.demo.model.Orders;
 import com.example.demo.repo.AccountRepository;
 import com.example.demo.repo.OrdersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -34,8 +37,19 @@ public class CustomerController {
     }
 
     // 3. Get customer purchase history
+// In your controller
     @GetMapping("/{id}/orders")
-    public List<Orders> getCustomerOrders(@PathVariable Long id) {
-        return ordersRepository.findByAccount_AccountId(id);
+    public ResponseEntity<Map<String, Object>> getCustomerOrdersWithTotal(@PathVariable Long id) {
+        List<Orders> orders = ordersRepository.findByAccount_AccountId(id);
+        double totalPurchaseAmount = orders.stream()
+                .mapToDouble(Orders::getTotalPrice)
+                .sum();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("orders", orders);
+        response.put("totalPurchaseAmount", totalPurchaseAmount);
+
+        return ResponseEntity.ok(response);
     }
+
 }

@@ -194,7 +194,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_margin="16dp"
+                    android:layout_marginBottom="70dp"
+            android:layout_marginRight="10dp"
             android:src="@android:drawable/sym_action_chat"
             app:backgroundTint="@color/facebook_blue"
             app:fabSize="normal" />

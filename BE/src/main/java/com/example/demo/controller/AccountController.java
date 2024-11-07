@@ -39,6 +39,17 @@ public class AccountController {
         }
         return null;
     }
+    @GetMapping("/account/by-userid/{userId}")
+    public ResponseEntity<Account> getAccountByUserId(@PathVariable Long userId) {
+        Account account = accountRepository.findByUserId(userId);
+
+        // Check if account is found
+        if (account != null) {
+            return ResponseEntity.ok(account); // Return the found account
+        }
+        return ResponseEntity.notFound().build(); // Return 404 if account not found
+    }
+
     @GetMapping("/id/{username}")
     public ResponseEntity<Integer> getAccountId(@PathVariable String username) {
         Integer accountId = accountService.getAccountIdByUsername(username);

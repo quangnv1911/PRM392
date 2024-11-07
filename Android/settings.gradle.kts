@@ -16,6 +16,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        flatDir {
+            dirs("libs") // Thư mục chứa file AAR trong dự án của bạn
+        }
     }
 }
 

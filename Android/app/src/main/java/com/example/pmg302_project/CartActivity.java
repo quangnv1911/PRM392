@@ -1,16 +1,20 @@
-// CartActivity.java
 package com.example.pmg302_project;
 
-import android.annotation.SuppressLint;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,11 +31,11 @@ public class CartActivity extends AppCompatActivity {
     private List<Product> cartList;
     private TextView totalQuantityTextView;
     private TextView totalPriceTextView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
-
 
         Toolbar toolbar = findViewById(R.id.toolbar_homepage);
         setSupportActionBar(toolbar);
@@ -43,55 +47,59 @@ public class CartActivity extends AppCompatActivity {
         totalPriceTextView = findViewById(R.id.totalPrice);
 
         // Fetch cart data from CartPreferences
-        cartList = CartPreferences.loadCart(this);
-        productAdapter = new ProductAdapter(this,this, cartList, null, true);
-        recyclerViewCart.setAdapter(productAdapter);
+        loadCartData();
 
         TextView emptyCartMessage = findViewById(R.id.emptyCartMessage);
-        if (cartList.isEmpty()) {
-            emptyCartMessage.setVisibility(TextView.VISIBLE);
-        } else {
-            emptyCartMessage.setVisibility(TextView.GONE);
-        }
+//        if (cartList.isEmpty()) {
+//            emptyCartMessage.setVisibility(View.VISIBLE);
+//        } else {
+//            emptyCartMessage.setVisibility(View.GONE);
+//            showCartNotification(); // Show notification if cart is not empty
+//            Log.d("CartActivity", "Cart size: " + cartList.size());
+//        }
 
         updateCartSummary();
-        Button checkoutButton = findViewById(R.id.checkoutButton);
-        checkoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username=InMemoryStorage.get("username");
-                Intent intent;
-                if(!cartList.isEmpty()){
-                    if(username!=null){
-                        intent = new Intent(CartActivity.this, PaymentActivity.class);
-                    }else{
-                        intent = new Intent(CartActivity.this, MainActivity.class);
-                    }
-                    startActivity(intent);
-                }
+        setupCheckoutButton();
+        setupBottomNavigation();
+    }
 
+    private void loadCartData() {
+        cartList = CartPreferences.loadCart(this);
+        productAdapter = new ProductAdapter(this, this, cartList, null, true);
+        recyclerViewCart.setAdapter(productAdapter);
+    }
+
+    private void setupCheckoutButton() {
+        Button checkoutButton = findViewById(R.id.checkoutButton);
+        checkoutButton.setOnClickListener(v -> {
+            String username = InMemoryStorage.get("username");
+            Intent intent;
+            if (!cartList.isEmpty()) {
+                intent = username != null ? new Intent(CartActivity.this, PaymentActivity.class)
+                        : new Intent(CartActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
+    }
+
+    private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setSelectedItemId(R.id.nav_order);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             Intent intent;
             if (itemId == R.id.nav_home) {
-                // Handle home action
-                intent = new Intent(this, HomePageActivity.class);
+                intent = new Intent(CartActivity.this, HomePageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 finish();
                 return true;
             } else if (itemId == R.id.nav_order) {
                 // Handle order action
-                intent = new Intent(this, CartActivity.class);
-                startActivity(intent);
-                finish();
                 return true;
             } else if (itemId == R.id.nav_map) {
-                // Handle map action
-                intent = new Intent(this, LandingPageActivity.class);
+                intent = new Intent(CartActivity.this, LandingPageActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 finish();
                 return true;
@@ -113,53 +121,11 @@ public class CartActivity extends AppCompatActivity {
         totalPriceTextView.setText("Total Price: $" + String.format("%.2f", totalPrice));
     }
 
-    //-linhtb luong add order thanh cong->close activity Payment->resume Cart
     @Override
     protected void onResume() {
         super.onResume();
-        setContentView(R.layout.activity_cart);
-
-
-        Toolbar toolbar = findViewById(R.id.toolbar_homepage);
-        setSupportActionBar(toolbar);
-
-        recyclerViewCart = findViewById(R.id.recyclerViewCart);
-        recyclerViewCart.setLayoutManager(new LinearLayoutManager(this));
-
-        totalQuantityTextView = findViewById(R.id.totalQuantity);
-        totalPriceTextView = findViewById(R.id.totalPrice);
-
-        // Fetch cart data from CartPreferences
-        cartList = CartPreferences.loadCart(this);
-        productAdapter = new ProductAdapter(this,this, cartList, null, true);
-        recyclerViewCart.setAdapter(productAdapter);
-
-        TextView emptyCartMessage = findViewById(R.id.emptyCartMessage);
-        if (cartList.isEmpty()) {
-            emptyCartMessage.setVisibility(TextView.VISIBLE);
-        } else {
-            emptyCartMessage.setVisibility(TextView.GONE);
-        }
-
-        updateCartSummary();
-        Button checkoutButton = findViewById(R.id.checkoutButton);
-        checkoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username=InMemoryStorage.get("username");
-                Intent intent;
-                if(!cartList.isEmpty()){
-                    if(username!=null){
-                        intent = new Intent(CartActivity.this, PaymentActivity.class);
-                    }else{
-                        intent = new Intent(CartActivity.this, MainActivity.class);
-                    }
-                    startActivity(intent);
-                }
-
-            }
-        });
-
-        // Thực hiện các tác vụ cần thiết khi Activity được khôi phục
+        loadCartData(); // Reload cart data
+        updateCartSummary(); // Update summary display
     }
+
 }
