@@ -152,5 +152,10 @@
     <string name="back">Quay về</string>
     <string name="send">Gửi</string>
 
+    <!-- Bank information -->
+    <string name="name_account_bank">Trần Bảo Linh</string>
+    <string name="number_bank">0333990577</string>
+    <string name="mbbankcode">mbbank</string>
+    <string name="templateQR">vmoooJD</string>
     <!-- Add other strings as needed -->
 </resources>
