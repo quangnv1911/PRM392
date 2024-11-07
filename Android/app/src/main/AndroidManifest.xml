@@ -67,6 +67,10 @@
             android:enabled="true"
             android:foregroundServiceType="connectedDevice"
             tools:ignore="ForegroundServicePermission"></service>
+        <service
+            android:name=".service.TransferCheckService"
+            android:exported="true"
+            android:enabled="true"></service>
 
         <activity
             android:name=".DashboardActivity"
@@ -166,6 +170,9 @@
             android:exported="true"></activity>
         <activity
             android:name=".OrderDetailActivity"
+            android:exported="true"></activity>
+        <activity
+            android:name=".TransactionActivity"
             android:exported="true"></activity>
     </application>
 </manifest>

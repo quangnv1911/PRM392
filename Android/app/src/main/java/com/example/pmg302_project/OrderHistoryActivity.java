@@ -123,7 +123,6 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
         });
 
         Handler mainHandler = new Handler(Looper.getMainLooper());
-
         new Thread(() -> {
             // Công việc trên luồng phụ
             loadOrderList();
@@ -208,6 +207,7 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
     private void changeStatus(Orders orders, int status){
         final CountDownLatch latch = new CountDownLatch(1);
         String url = "http://" + ip + ":8081/api/changeOrderStatus";
+        Log.d("change status",url);
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -237,11 +237,14 @@ public class OrderHistoryActivity extends AppCompatActivity implements OrderHist
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if(response.isSuccessful()){
-                    orders.setStatus(1);
-                    ordersList.get(0).setStatus(1);
-                        runOnUiThread(()->{
-                            orderHisAdapter.notifyDataSetChanged();
-                        });
+                    for (int i=0;i<ordersList.size();i++) {
+                        if (ordersList.get(i).getOrderId().equals(orders.getOrderId())) { // Replace getOrderId() with the actual method for retrieving the ID
+                            ordersList.get(i).setStatus(1);
+                            break; // Exit the loop once the matching order is found
+                        }
+                    }
+                   // loadOrderList();
+                    orderHisAdapter.notifyDataSetChanged();
                     latch.countDown();
                 }
 
