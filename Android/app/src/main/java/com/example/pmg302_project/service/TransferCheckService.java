@@ -75,7 +75,7 @@ public class TransferCheckService extends Service {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url("https://oauth.casso.vn/v2/transactions")
+                .url("https://oauth.casso.vn/v2/transactions?sort=DESC")
                 .get()
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Authorization", "Apikey AK_CS.7049fbe09cc211ef8a02890bf6befcfe.MnfHLYT9P2zB1VTnt9090gaQPsvmeRcGE4cILpgzkFith9LNaFGMjaZ2YCYgM6tx5Xec3bub")
